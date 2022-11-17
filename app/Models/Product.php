@@ -24,8 +24,11 @@ class Product extends Model
         'images',
         'active',
         'vat',
+        'tax',
+        'tax_type',
         'category_id',
-        'brand_id'
+        'brand_id',
+        'unit_id'
     ];
 
     protected $casts = [
