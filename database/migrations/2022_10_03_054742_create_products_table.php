@@ -21,22 +21,20 @@ return new class extends Migration
 
             $table->longText('images');
 
+            $table->string('unit')->nullable();
+
             $table->integer('current_stock');
 
             $table->string('tax')->nullable();
             $table->string('tax_type')->nullable();
 
             $table->unsignedInteger('price');
-            $table->unsignedInteger('retail');
 
             $table->boolean('active')->default(true);
-            $table->boolean('vat')->default(false);
 
 
             $table->foreignId('category_id')->index()->constrained('categories')->cascadeOnDelete();
             $table->foreignId('brand_id')->nullable()->index()->constrained('brands')->cascadeOnDelete();
-            $table->foreignId('unit_id')->nullable()->index()->constrained('units')->cascadeOnDelete();
-
             $table->timestamps();
         });
     }

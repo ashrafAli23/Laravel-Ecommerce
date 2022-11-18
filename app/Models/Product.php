@@ -19,21 +19,18 @@ class Product extends Model
         'slug',
         'description',
         'price',
-        'retail',
         'current_stock',
         'images',
         'active',
-        'vat',
         'tax',
         'tax_type',
         'category_id',
         'brand_id',
-        'unit_id'
+        'unit'
     ];
 
     protected $casts = [
         'active' => 'boolean',
-        'vat' => 'boolean'
     ];
 
 
