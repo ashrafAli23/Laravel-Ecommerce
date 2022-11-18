@@ -35,17 +35,8 @@ class ProductService
 
     public function storeProduct(Request $request): void
     {
-
-        $productImages = array();
-        // foreach ($request->file('images') as $image) {
-        //     dd($image->getClientOriginalName());
-        //     $images[] = $image->getClientOriginalName();
-        //     dd("work");
-        // }
-        dd(count($request->file('images')));
-
-
-        dd("fff");
+        $product_image = $this->uploadMultipleFile($request, 'images', 'products');
+        dd($product_image);
 
         $requestData = [
             'name' => $request->name,
