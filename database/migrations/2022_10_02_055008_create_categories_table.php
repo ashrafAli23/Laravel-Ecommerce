@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
+            $table->foreignId('sub_category')->nullable()->constrained('categories');
             $table->string('image')->nullable();
             $table->mediumText('description');
             $table->boolean('active')->default(true);

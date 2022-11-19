@@ -22,15 +22,21 @@ class Product extends Model
         'current_stock',
         'images',
         'active',
+        'min_qty',
+        'colors',
+        'featured',
         'tax',
         'tax_type',
         'category_id',
+        'shipping_cost',
+        'free_shipping',
         'brand_id',
         'unit'
     ];
 
     protected $casts = [
         'active' => 'boolean',
+        'free_shipping' => 'boolean'
     ];
 
 

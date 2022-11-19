@@ -22,14 +22,19 @@ return new class extends Migration
             $table->longText('images');
 
             $table->string('unit')->nullable();
+            $table->string('colors')->nullable();
+            $table->string('featured')->nullable();
 
             $table->integer('current_stock');
+            $table->integer('min_qty');
 
             $table->string('tax')->nullable();
             $table->string('tax_type')->nullable();
 
             $table->unsignedInteger('price');
+            $table->unsignedInteger('shipping_cost');
 
+            $table->boolean('free_shipping')->default(true);
             $table->boolean('active')->default(true);
 
 
