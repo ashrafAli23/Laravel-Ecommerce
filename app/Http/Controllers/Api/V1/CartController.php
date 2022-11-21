@@ -35,8 +35,9 @@ class CartController extends Controller
     public function addToCart(CartRequest $request): JsonResponse
     {
         try {
+            $cart_id = $this->cooke_id ?? $request->cart_id;
             DB::beginTransaction();
-            $cart = $this->cart->checkCart($this->cooke_id);
+            $cart = $this->cart->checkCart($cart_id);
 
             // check cart if created
             if (isset($cart)) {
@@ -76,7 +77,7 @@ class CartController extends Controller
             $cooke = cookie('e-store_cart_id', $cartData->cooke_id, 60 * 24 * 30);
             db::commit();
 
-            return $this->successResponse("Cart created", STATUS::HTTP_CREATED)
+            return $this->dataResponse(['cart_id' => $cooke], STATUS::HTTP_CREATED)
                 ->withCookie($cooke);
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -87,7 +88,8 @@ class CartController extends Controller
     public function showCartDetails(Request $request): JsonResponse
     {
         try {
-            $cartData = $this->cart->getUserCart($this->cooke_id);
+            $cart_id = $this->cooke_id ?? $request->cart_id;
+            $cartData = $this->cart->getUserCart($cart_id);
 
             if (!isset($cartData)) {
                 return $this->errorResponse("Cart is empty", STATUS::HTTP_BAD_REQUEST);
@@ -109,8 +111,8 @@ class CartController extends Controller
         $request->validate([
             'quantaty' => 'required|numeric'
         ]);
-
-        $checkCart = $this->cart->checkCart($this->cooke_id);
+        $cart_id = $this->cooke_id ?? $request->cart_id;
+        $checkCart = $this->cart->checkCart($cart_id);
 
         // check cart if exsits 
         if (!isset($checkCart)) {
@@ -141,7 +143,7 @@ class CartController extends Controller
         }
 
         // get user cart
-        $cartData = $this->cart->getUserCart($this->cooke_id);
+        $cartData = $this->cart->getUserCart($cart_id);
         return $this->dataResponse(
             new CartResource($cartData),
             STATUS::HTTP_OK
@@ -151,7 +153,8 @@ class CartController extends Controller
     public function destroyCart(Request $request): JsonResponse
     {
         try {
-            $cartData = $this->cart->checkCart($this->cooke_id);
+            $cart_id = $this->cooke_id ?? $request->cart_id;
+            $cartData = $this->cart->checkCart($cart_id);
 
             if (!isset($cartData)) {
                 return $this->errorResponse("Cart is empty", STATUS::HTTP_NOT_FOUND);
