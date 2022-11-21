@@ -21,9 +21,9 @@ class Repository implements IRepository
         return $this->model;
     }
 
-    public function store(array $data): void
+    public function store(array $data): Model|null
     {
-        $this->model->create($data);
+        return $this->model->create($data);
     }
 
     public function show(int $id): Model|null

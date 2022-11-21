@@ -13,20 +13,12 @@ return new class extends Migration
     {
         Schema::create('variants', function (Blueprint $table) {
             $table->id();
-
-            $table->string('name')->unique();
             $table->string('color')->nullable();
-
-            $table->unsignedInteger('price');
-            $table->unsignedInteger('retail');
-
             $table->integer('height')->nullable();
             $table->integer('width')->nullable();
             $table->integer('length')->nullable();
             $table->integer('weight')->nullable();
-
             $table->boolean('active')->default(true);
-            $table->boolean('shippable')->default(false);
 
             $table->foreignId('product_id')->nullable()->constrained('products')->nullOnDelete();
 

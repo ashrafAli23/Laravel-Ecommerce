@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\PaginateRequest;
+use App\Http\Requests\V1\ProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Services\ProductService;
 use App\Traits\Response;
@@ -41,7 +42,7 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request): JsonResponse
+    public function store(ProductRequest $request): JsonResponse
     {
         try {
             $this->product->storeProduct($request);

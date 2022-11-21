@@ -13,22 +13,17 @@ class Variant extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
         'color',
-        'price',
-        'retail',
         'height',
         'width',
         'length',
         'weight',
         'active',
-        'shippable',
         'product_id'
     ];
 
     protected $casts = [
         'active' => 'boolean',
-        'shippable' => 'boolean',
     ];
 
     public function product(): BelongsTo

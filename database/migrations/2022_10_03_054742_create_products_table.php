@@ -14,16 +14,17 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
 
-            $table->string('slug')->index();
-            $table->string('name')->unique();
+            $table->string('slug');
+            $table->string('name')->unique()->index();
 
             $table->mediumText('description');
 
             $table->longText('images');
+            $table->string('main_image');
 
             $table->string('unit')->nullable();
-            $table->string('colors')->nullable();
             $table->string('featured')->nullable();
+            $table->enum('product_type', ['digital', 'physical']);
 
             $table->integer('current_stock');
             $table->integer('min_qty');
@@ -34,7 +35,7 @@ return new class extends Migration
             $table->unsignedInteger('price');
             $table->unsignedInteger('shipping_cost');
 
-            $table->boolean('free_shipping')->default(true);
+            $table->boolean('free_shipping')->default(false);
             $table->boolean('active')->default(true);
 
 

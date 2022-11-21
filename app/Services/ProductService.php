@@ -36,26 +36,37 @@ class ProductService
     public function storeProduct(Request $request): void
     {
         $product_image = $this->uploadMultipleFile($request, 'images', 'products');
-        dd($product_image);
+        $main_image = $this->uploadFile($request, 'image', 'products');
+
+        // check product_type if physical or digital
+        $check_product_type = $request->product_type === 'physical';
 
         $requestData = [
             'name' => $request->name,
             'slug' => Str::slug($request->name),
             'description' => $request->description,
             'price' => $request->price,
-            'retail' => $request->retail,
-            'current_stock' => $request->current_stock,
-            'images' => $request->images,
-            'active' => $request->status,
-            'vat' => $request->vat,
+            'current_stock' => $check_product_type ? $request->current_stock : 0,
+            'images' => json_encode($product_image),
+            'main_image' => $main_image,
+            'active' => $request->status ?? 1,
+            'min_qty' => $check_product_type ? $request->min_qty : 0,
+            'product_type' => $request->product_type,
+            'unit' => $check_product_type ? $request->unit : null,
+            'tax' => $request->tax,
+            'tax_type' => $request->tax_type,
+            'shipping_cost' => $check_product_type ? $request->shipping_cost : 0,
             'category_id' => $request->category_id,
-            'brand_id' => $request->brand_id,
+            'brand_id' => $request->brand_id ?? null,
         ];
-        // $this->repository->store([
-        //     'name' => $request->name,
-        //     'description' => $request->description,
-        //     'image' => $this->uploadFile($request, 'category'),
-        // ]);
+
+        $product =  $this->repository->store($requestData);
+
+        if (isset($request->variant)) {
+            foreach ($request->variant as $key => $value) {
+                $product->variant()->create([$key => $value]);
+            }
+        }
     }
 
     public function showProduct(int $id): object

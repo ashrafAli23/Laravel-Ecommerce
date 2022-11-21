@@ -23,7 +23,6 @@ class Product extends Model
         'images',
         'active',
         'min_qty',
-        'colors',
         'featured',
         'tax',
         'tax_type',
@@ -31,7 +30,8 @@ class Product extends Model
         'shipping_cost',
         'free_shipping',
         'brand_id',
-        'unit'
+        'unit',
+        'product_type'
     ];
 
     protected $casts = [
