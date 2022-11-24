@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\Admin\CategoryController;
 use App\Http\Controllers\Api\V1\Admin\CouponsController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\ProductController;
+use App\Http\Controllers\Api\V1\Admin\UnitsController;
 use App\Http\Controllers\Api\V1\Admin\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,9 @@ Route::prefix('admin')->group(function () {
 
     //------------ USERS ------------
     Route::apiResource('/user', UsersController::class);
+
+    //------------ UNITS ------------
+    Route::apiResource('/units', UnitsController::class);
 
     //------------ COUPONS ------------
     Route::apiResource('/coupons', CouponsController::class);
