@@ -39,7 +39,7 @@ class BannerService
             'banner_type' => $request->banner_type,
             'title' => $request->title,
             'description' => $request->description,
-            'image' => $this->uploadFile($request, 'banner'),
+            'image' => $this->uploadFile($request, 'image', 'banner'),
             'active' => $request->status ?? 1,
         ]);
     }
