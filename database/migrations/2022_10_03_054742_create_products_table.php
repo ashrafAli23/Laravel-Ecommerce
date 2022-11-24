@@ -22,12 +22,8 @@ return new class extends Migration
             $table->longText('images');
             $table->string('main_image');
 
-            $table->string('unit')->nullable();
             $table->string('featured')->nullable();
             $table->enum('product_type', ['digital', 'physical']);
-
-            $table->integer('current_stock');
-            $table->integer('min_qty');
 
             $table->string('tax')->nullable();
             $table->string('tax_type')->nullable();

@@ -54,4 +54,9 @@ class Product extends Model
     {
         return $this->belongsTo(Brands::class, 'brand_id');
     }
+
+    public function rating(): HasMany
+    {
+        return $this->hasMany(ProductRating::class);
+    }
 }
