@@ -13,28 +13,17 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-
             $table->string('slug');
             $table->string('name')->unique()->index();
-
             $table->mediumText('description');
-
             $table->longText('images');
             $table->string('main_image');
-
             $table->string('featured')->nullable();
             $table->enum('product_type', ['digital', 'physical']);
-
             $table->string('tax')->nullable();
             $table->string('tax_type')->nullable();
-
             $table->unsignedInteger('price');
-            $table->unsignedInteger('shipping_cost');
-
-            $table->boolean('free_shipping')->default(false);
             $table->boolean('active')->default(true);
-
-
             $table->foreignId('category_id')->index()->constrained('categories')->cascadeOnDelete();
             $table->foreignId('brand_id')->nullable()->index()->constrained('brands')->cascadeOnDelete();
             $table->timestamps();

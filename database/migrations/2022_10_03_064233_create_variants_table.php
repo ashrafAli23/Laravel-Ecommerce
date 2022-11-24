@@ -15,15 +15,15 @@ return new class extends Migration
             $table->id();
             $table->enum('stock_status', ['in_stock', 'out_stock'])->default('in_stock');
             $table->unsignedBigInteger('stock_qty')->default(10);
+            $table->unsignedInteger('shipping_cost');
+            $table->boolean('free_shipping')->default(false);
             $table->string('color')->nullable();
             $table->integer('height')->nullable();
             $table->integer('width')->nullable();
             $table->integer('length')->nullable();
             $table->integer('weight')->nullable();
-
             $table->foreignId('product_id')->nullable()->constrained('products')->nullOnDelete();
             $table->foreignId('unit_id')->nullable()->constrained('units')->nullOnDelete();
-
             $table->timestamps();
         });
     }
