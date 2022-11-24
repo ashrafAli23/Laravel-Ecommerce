@@ -10,12 +10,14 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Chatting;
 use App\Models\Product;
+use App\Models\Units;
 use App\Repository\Repository;
 use App\Services\BannerService;
 use App\Services\BrandService;
 use App\Services\CategoryService;
 use App\Services\ChattingService;
 use App\Services\ProductService;
+use App\Services\UnitsService;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -26,6 +28,21 @@ class RepositoryServiceProvider extends ServiceProvider
      * @return void
      */
     public function register(): void
+    {
+        $this->serviceContainer();
+    }
+
+    /**
+     * Bootstrap services.
+     *
+     * @return void
+     */
+    public function boot(): void
+    {
+        //
+    }
+
+    private function serviceContainer(): void
     {
         $this->app->when(CategoryService::class)->needs(IRepository::class)
             ->give(function () {
@@ -51,15 +68,10 @@ class RepositoryServiceProvider extends ServiceProvider
             ->give(function () {
                 return new Repository(new Chatting);
             });
-    }
 
-    /**
-     * Bootstrap services.
-     *
-     * @return void
-     */
-    public function boot(): void
-    {
-        //
+        $this->app->when(UnitsService::class)->needs(IRepository::class)
+            ->give(function () {
+                return new Repository(new Units);
+            });
     }
 }
