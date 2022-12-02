@@ -10,12 +10,14 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Chatting;
 use App\Models\Product;
+use App\Models\ProductRating;
 use App\Models\Units;
 use App\Repository\Repository;
 use App\Services\BannerService;
 use App\Services\BrandService;
 use App\Services\CategoryService;
 use App\Services\ChattingService;
+use App\Services\ProductRatingService;
 use App\Services\ProductService;
 use App\Services\UnitsService;
 use Illuminate\Support\ServiceProvider;
@@ -72,6 +74,11 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->when(UnitsService::class)->needs(IRepository::class)
             ->give(function () {
                 return new Repository(new Units);
+            });
+
+        $this->app->when(ProductRatingService::class)->needs(IRepository::class)
+            ->give(function () {
+                return new Repository(new ProductRating);
             });
     }
 }
