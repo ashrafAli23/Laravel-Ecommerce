@@ -19,9 +19,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedInteger('quantaty')->default(1);
             $table->foreignId('cart_id')->index()->constrained('carts')->cascadeOnDelete();
-            $table->foreignId('variant_id')->index()->constrained('variants')->cascadeOnDelete();
-
-            $table->unique(['cart_id', 'variant_id']);
+            $table->foreignId('variant_id')->nullable()->index()->constrained('variants')->cascadeOnDelete();
+            $table->foreignId('product_id')->nullable()->index()->constrained('products')->cascadeOnDelete();
+            $table->unique(['cart_id', 'variant_id', 'product_id']);
         });
     }
 

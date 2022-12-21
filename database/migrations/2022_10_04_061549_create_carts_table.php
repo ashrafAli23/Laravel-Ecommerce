@@ -13,12 +13,9 @@ return new class extends Migration
     {
         Schema::create('carts', function (Blueprint $table) {
             $table->id();
-
             $table->string('cooke_id')->unique()->index();
             $table->string('coupon')->nullable();
-
             $table->unsignedInteger('discount')->nullable();
-
             $table->timestamps();
         });
     }
