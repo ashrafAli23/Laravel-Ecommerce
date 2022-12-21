@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Http\Interface\Repository\IRepository;
 use App\Traits\UploadFile;
 use Exception;
 use Illuminate\Http\Request;
@@ -12,13 +11,6 @@ use Illuminate\Http\Request;
 class BannerService
 {
     use UploadFile;
-
-    private IRepository $repository;
-
-    public function __construct(IRepository $repository)
-    {
-        $this->repository = $repository;
-    }
 
     public function getAllBanners(Request $request): object
     {
