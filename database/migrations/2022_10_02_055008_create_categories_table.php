@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->foreignId('sub_category')->nullable()->constrained('categories');
-            $table->mediumText('description');
+            $table->mediumText('description')->nullable();
             $table->boolean("featured")->default(0);
             $table->string('image')->nullable();
             $table->enum('status', ['published', 'draft', 'pending'])->default('published');
