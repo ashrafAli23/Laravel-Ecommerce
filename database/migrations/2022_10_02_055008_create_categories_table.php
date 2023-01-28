@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->foreignId('sub_category')->nullable()->constrained('categories');
-            $table->string('image')->nullable();
             $table->mediumText('description');
-            $table->boolean('active')->default(true);
+            $table->boolean("featured")->default(0);
+            $table->string('image')->nullable();
+            $table->enum('status', ['published', 'draft', 'pending'])->default('published');
+            $table->unsignedBigInteger('total_sale')->default(0);
             $table->timestamps();
         });
     }

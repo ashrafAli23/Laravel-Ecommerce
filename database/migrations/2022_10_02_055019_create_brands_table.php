@@ -25,8 +25,6 @@ return new class extends Migration
             $table->enum('status', ['published', 'draft', 'pending'])->default('published');
             $table->string("link")->nullable();
             $table->unsignedBigInteger('total_sale')->default(0);
-            $table->text("meta_title")->nullable();
-            $table->text("meta_description")->nullable();
             $table->timestamps();
         });
     }
