@@ -17,15 +17,22 @@ class Category extends Model
         'description',
         'sub_category',
         'image',
-        'active',
+        'status',
+        'featured',
+        'total_sale'
     ];
 
     protected $casts = [
-        'active' => 'boolean'
+        'featured' => 'boolean'
     ];
 
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'category_id');
+    }
+
+    public function meta(): HasMany
+    {
+        return $this->hasMany(Meta::class);
     }
 }

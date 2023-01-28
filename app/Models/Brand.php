@@ -15,11 +15,16 @@ class Brand extends Model
     protected $fillable = [
         'name',
         'image',
-        'active',
+        'slug',
+        'description',
+        'featured',
+        'status',
+        'link',
+        'total_sale'
     ];
 
     protected $cast = [
-        'active' => 'boolean',
+        'featured' => 'boolean',
     ];
 
 

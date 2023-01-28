@@ -10,4 +10,10 @@ use Illuminate\Database\Eloquent\Model;
 class Meta extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'meta_key',
+        'meta_value',
+        'reference_id'
+    ];
 }
