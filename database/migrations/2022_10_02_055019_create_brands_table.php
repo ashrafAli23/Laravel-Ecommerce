@@ -17,9 +17,16 @@ return new class extends Migration
     {
         Schema::create('brands', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->string('name');
+            $table->string('slug')->unique();
             $table->string('image')->nullable();
-            $table->boolean('active')->default(true);
+            $table->text('description')->nullable();
+            $table->boolean("featured")->default(0);
+            $table->enum('status', ['published', 'draft', 'pending'])->default('published');
+            $table->string("link")->nullable();
+            $table->unsignedBigInteger('total_sale')->default(0);
+            $table->text("meta_title")->nullable();
+            $table->text("meta_description")->nullable();
             $table->timestamps();
         });
     }
