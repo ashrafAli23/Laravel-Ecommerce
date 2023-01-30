@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('meta_key');
             $table->text('meta_value');
             $table->unsignedBigInteger('reference_id')->index();
+            $table->string('reference_type');
             $table->timestamps();
         });
     }
