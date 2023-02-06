@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
+            $table->string('sku')->nullable();
             $table->mediumText('description');
             $table->longText('images');
             $table->string('main_image');
@@ -22,17 +23,18 @@ return new class extends Migration
             $table->unsignedInteger('min_order_qty')->default(1);
             $table->unsignedInteger('max_order_qty')->default(1);
             $table->enum('product_type', ['digital', 'physical']);
+            $table->enum('stock_status', ['in_stock', 'out_of_stock'])->default('in_stock');
             $table->string('barcode')->nullable();
             $table->string('tax')->nullable();
             $table->string('tax_type')->nullable();
             $table->string('video_link')->nullable();
-            $table->enum('discount_type', ['amount', 'percentage'])->nullable();
             $table->unsignedFloat('discount')->default(0);
             $table->unsignedInteger('price');
             $table->unsignedDecimal('sale_price');
             $table->enum('status', ['published', 'draft', 'pending'])->default('published');
             $table->foreignId('category_id')->index()->constrained('categories')->cascadeOnDelete();
             $table->foreignId('brand_id')->nullable()->index()->constrained('brands')->cascadeOnDelete();
+            $table->foreignId('meta_id')->nullable()->constrained('metas')->cascadeOnDelete();
             $table->timestamps();
         });
     }
