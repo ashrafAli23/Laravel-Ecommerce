@@ -18,28 +18,4 @@ class Meta extends Model
         'reference_id',
         'reference_type',
     ];
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-    public function getMetaKey(): string
-    {
-        return $this->meta_key;
-    }
-
-    public function getMetaValue(): string
-    {
-        return $this->meta_value;
-    }
-
-    public function getReferenceId(): int
-    {
-        return $this->reference_id;
-    }
-
-    public function getReferenceType(): string
-    {
-        return $this->reference_type;
-    }
 }

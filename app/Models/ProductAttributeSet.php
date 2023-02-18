@@ -25,36 +25,6 @@ class ProductAttributeSet extends Model
         'status' => BaseStatusEnum::class
     ];
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getTitle(): string
-    {
-        return $this->title;
-    }
-
-    public function getSlug(): string
-    {
-        return $this->slug;
-    }
-
-    public function getDesc(): string
-    {
-        return $this->description;
-    }
-
-    public function getDisplayLayout(): string
-    {
-        return $this->display_layout;
-    }
-
-    public function getStatus(): string
-    {
-        return $this->status;
-    }
-
     public function productAttr(): HasMany
     {
         return $this->hasMany(ProductAttribute::class);
