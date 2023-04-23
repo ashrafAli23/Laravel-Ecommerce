@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace App\Repositories\Eloquent;
 
-use App\Repositories\Interfaces\RepositoryInterface;
+use App\Repositories\Interfaces\IRepository;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 
-abstract class RepositoriesAbstract implements RepositoryInterface
+abstract class RepositoriesAbstract implements IRepository
 {
     /**
-     * @var Eloquent | Model | SoftDeletes
+     * @var Eloquent | Model
      */
     private $model;
 
     /**
-     * @var Eloquent | Model | SoftDeletes
+     * @var Eloquent | Model
      */
     private $originalModel;
 

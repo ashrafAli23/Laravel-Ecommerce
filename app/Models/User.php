@@ -22,7 +22,10 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'email',
+        'username',
         'password',
+        'avatar_id',
+        'permissions',
     ];
 
 
@@ -32,20 +35,12 @@ class User extends Authenticatable
     ];
 
 
-    protected $casts = [];
+    protected $casts = [
+        'permissions' => 'json',
+    ];
 
-    public function address(): HasOne
+    public function isSuper(): bool
     {
-        return $this->hasOne(Address::class);
-    }
-
-    public function order(): HasMany
-    {
-        return $this->hasMany(Order::class);
-    }
-
-    public function wishlist(): HasMany
-    {
-        return $this->HasMany(Wishlist::class);
+        return $this->is_super;
     }
 }

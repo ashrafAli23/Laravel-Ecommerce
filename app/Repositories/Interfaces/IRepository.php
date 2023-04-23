@@ -6,7 +6,7 @@ namespace App\Repositories\Interfaces;
 
 use Illuminate\Database\Eloquent\Model;
 
-interface RepositoryInterface
+interface IRepository
 {
     public function applyBeforeExecuteQuery($data, bool $isSingle = false);
 
