@@ -17,6 +17,10 @@ class BaseResponse implements Responsable
     private mixed $data = null;
 
     private ?string $message = null;
+    
+//     private string $previousUrl = '';
+    
+//     private string $nextUrl = '';
 
     private bool $withInput = false;
 
@@ -30,6 +34,24 @@ class BaseResponse implements Responsable
 
         return $this;
     }
+    
+//     public function setPreviousUrl(string $previousUrl): self
+//     {
+//         $this->previousUrl = $previousUrl;
+
+//         return $this;
+//     }
+
+//     /**
+//      * @param string $nextUrl
+//      * @return BaseHttpResponse
+//      */
+//     public function setNextUrl(string $nextUrl): self
+//     {
+//         $this->nextUrl = $nextUrl;
+
+//         return $this;
+//     }
 
     public function withInput(bool $withInput = true): self
     {
@@ -107,4 +129,64 @@ class BaseResponse implements Responsable
         return response()
             ->json($data, $this->code);
     }
+    
+//     public function toApiResponse()
+//     {
+//         if ($this->data instanceof JsonResource) {
+//             return $this->data->additional(array_merge([
+//                 'error' => $this->error,
+//                 'message' => $this->message,
+//             ], $this->additional));
+//         }
+
+//         return $this->toResponse(request());
+//     }
+
+//     /**
+//      * @param Request $request
+//      * @return JsonResponse|RedirectResponse
+//      */
+//     public function toResponse($request)
+//     {
+//         if ($request->expectsJson()) {
+//             $data = [
+//                 'error' => $this->error,
+//                 'data' => $this->data,
+//                 'message' => $this->message,
+//             ];
+
+//             if ($this->additional) {
+//                 $data = array_merge($data, ['additional' => $this->additional]);
+//             }
+
+//             return response()
+//                 ->json($data, $this->code);
+//         }
+
+//         if ($request->input('submit') === 'save' && !empty($this->previousUrl)) {
+//             return $this->responseRedirect($this->previousUrl);
+//         } elseif (!empty($this->nextUrl)) {
+//             return $this->responseRedirect($this->nextUrl);
+//         }
+
+//         return $this->responseRedirect(URL::previous());
+//     }
+
+//     /**
+//      * @param string $url
+//      * @return RedirectResponse
+//      */
+//     protected function responseRedirect(string $url): RedirectResponse
+//     {
+//         if ($this->withInput) {
+//             return redirect()
+//                 ->to($url)
+//                 ->with($this->error ? 'error_msg' : 'success_msg', $this->message)
+//                 ->withInput();
+//         }
+
+//         return redirect()
+//             ->to($url)
+//             ->with($this->error ? 'error_msg' : 'success_msg', $this->message);
+//     }
 }
