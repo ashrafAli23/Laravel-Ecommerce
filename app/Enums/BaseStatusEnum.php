@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 class BaseStatusEnum
 {
     public const PUBLISHED = 'published';

@@ -1,18 +1,14 @@
 <?php
 
-declare(strict_types=1);
+namespace $NAMESPACE$;
 
-namespace App\Jobs;
-
-use App\Models\Cart;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
-class EmptyExpiredCarts implements ShouldQueue
+class $CLASS$ implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -31,8 +27,8 @@ class EmptyExpiredCarts implements ShouldQueue
      *
      * @return void
      */
-    public function handle(): void
+    public function handle()
     {
-        // Cart::where('created_at', '<', now()->subDays(30))->delete();
+        //
     }
 }
