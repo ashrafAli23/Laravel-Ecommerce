@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Repositories\Interfaces;
+namespace Modules\Common;
+
 
 use Illuminate\Database\Eloquent\Model;
 

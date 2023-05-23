@@ -214,10 +214,10 @@ return [
     */
 
     'composer' => [
-        'vendor' => 'nwidart',
+        'vendor' => '0x17',
         'author' => [
-            'name' => 'Nicolas Widart',
-            'email' => 'n.widart@gmail.com',
+            'name' => 'Ashraf Ali',
+            'email' => 'ashrafammar230@gmail.com',
         ],
         'composer-output' => false,
     ],

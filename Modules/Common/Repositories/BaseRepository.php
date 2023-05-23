@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Repositories;
+namespace Modules\Common\Repositories;
 
-use App\Repositories\Interfaces\IRepository;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
+use Modules\Common\IRepository;
 
 abstract class BaseRepository implements IRepository
 {

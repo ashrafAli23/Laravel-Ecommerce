@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Traits;
+namespace Modules\Common;
+
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
