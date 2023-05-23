@@ -8,7 +8,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
-use Modules\Common\IRepository;
+use Modules\Common\Repositories\Interfaces\IRepository;
 
 abstract class BaseRepository implements IRepository
 {

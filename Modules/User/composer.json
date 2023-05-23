@@ -1,5 +1,5 @@
 {
-    "name": "0x17/common",
+    "name": "0x17/user",
     "description": "",
     "authors": [
         {
@@ -10,12 +10,14 @@
     "extra": {
         "laravel": {
             "providers": [],
-            "aliases": {}
+            "aliases": {
+
+            }
         }
     },
     "autoload": {
         "psr-4": {
-            "Modules\\Common\\": ""
+            "Modules\\User\\": ""
         }
     }
 }

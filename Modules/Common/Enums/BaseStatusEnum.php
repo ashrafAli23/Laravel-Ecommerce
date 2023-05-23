@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Common;
+namespace Modules\Common\Enums;
 
 class BaseStatusEnum
 {

@@ -2,8 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Common;
-
+namespace Modules\Common\Repositories\Interfaces;
 
 use Illuminate\Database\Eloquent\Model;
 
