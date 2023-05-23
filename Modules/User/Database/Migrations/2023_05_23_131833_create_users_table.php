@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->boolean('super_user')->default(0);
             $table->timestamp('last_login')->nullable();
+            $table->rememberToken();
             $table->timestamps();
         });
     }
