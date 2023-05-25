@@ -4,7 +4,7 @@
 
 /**
  * A helper file for Laravel, to provide autocomplete information to your IDE
- * Generated for Laravel 10.11.0.
+ * Generated for Laravel 10.12.0.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -19086,39 +19086,6 @@
      
 }
 
-    namespace Illuminate\Routing { 
-            /**
-     * 
-     *
-     */ 
-        class Route {
-                    /**
-         * 
-         *
-         * @see \Spatie\Permission\PermissionServiceProvider::registerMacroHelpers()
-         * @param mixed $roles
-         * @static 
-         */ 
-        public static function role($roles = [])
-        {
-                        return \Illuminate\Routing\Route::role($roles);
-        }
-                    /**
-         * 
-         *
-         * @see \Spatie\Permission\PermissionServiceProvider::registerMacroHelpers()
-         * @param mixed $permissions
-         * @static 
-         */ 
-        public static function permission($permissions = [])
-        {
-                        return \Illuminate\Routing\Route::permission($permissions);
-        }
-         
-    }
-     
-}
-
 
 namespace  { 
             class App extends \Illuminate\Support\Facades\App {}
@@ -19695,6 +19662,19 @@ namespace  {
             {
                                 /** @var \Illuminate\Database\Eloquent\Builder $instance */
                                 return $instance->forceCreate($attributes);
+            }
+             
+                /**
+             * Save a new model instance with mass assignment without raising model events.
+             *
+             * @param array $attributes
+             * @return \Illuminate\Database\Eloquent\Model|$this 
+             * @static 
+             */ 
+            public static function forceCreateQuietly($attributes = [])
+            {
+                                /** @var \Illuminate\Database\Eloquent\Builder $instance */
+                                return $instance->forceCreateQuietly($attributes);
             }
              
                 /**
