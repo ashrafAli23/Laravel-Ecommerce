@@ -31,6 +31,20 @@ class Role extends Model
         return RoleFactory::new();
     }
 
+    /**
+     * @param array $permissions
+     * @return void
+     */
+    public function createPermissions(array $permissions = []): void
+    {
+        $this->permissions = json_encode($permissions);
+    }
+
+    public function getPermissions()
+    {
+        return $this->permissions;
+    }
+
     public function user(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_roles', 'role_id', 'user_id');
