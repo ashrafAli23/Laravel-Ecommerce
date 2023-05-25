@@ -1,27 +1,21 @@
 <?php
 
-namespace Modules\User\Providers;
+namespace Modules\Auth\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
-use Modules\User\Entities\Role;
-use Modules\User\Entities\User;
-use Modules\User\Repositories\Eloquent\RoleRepository;
-use Modules\User\Repositories\Interfaces\IUserRepository;
-use Modules\User\Repositories\Eloquent\UserRepository;
-use Modules\User\Repositories\Interfaces\IRoleRepository;
 
-class UserServiceProvider extends ServiceProvider
+class AuthServiceProvider extends ServiceProvider
 {
     /**
      * @var string $moduleName
      */
-    protected $moduleName = 'User';
+    protected $moduleName = 'Auth';
 
     /**
      * @var string $moduleNameLower
      */
-    protected $moduleNameLower = 'user';
+    protected $moduleNameLower = 'auth';
 
     /**
      * Boot the application events.
@@ -44,14 +38,6 @@ class UserServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->register(RouteServiceProvider::class);
-
-        $this->app->bind(IUserRepository::class, function () {
-            return new UserRepository(new User());
-        });
-
-        $this->app->bind(IRoleRepository::class, function () {
-            return new RoleRepository(new Role());
-        });
     }
 
     /**
@@ -65,8 +51,7 @@ class UserServiceProvider extends ServiceProvider
             module_path($this->moduleName, 'Config/config.php') => config_path($this->moduleNameLower . '.php'),
         ], 'config');
         $this->mergeConfigFrom(
-            module_path($this->moduleName, 'Config/config.php'),
-            $this->moduleNameLower
+            module_path($this->moduleName, 'Config/config.php'), $this->moduleNameLower
         );
     }
 

@@ -4,14 +4,35 @@ declare(strict_types=1);
 
 namespace Modules\User\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Modules\Common\Http\Response\BaseResponse;
+use Modules\User\Service\UserService;
 
 class UserController extends Controller
 {
 
-    public function index()
+    private UserService $userService;
+    public function __construct(UserService $userService)
     {
+        $this->userService = $userService;
+    }
+
+    public function index(Request $request, BaseResponse $response): JsonResponse
+    {
+        try {
+            $user = $this->userService->findAll($request);
+
+            return $response->setMessage("Empty data")
+                ->toResponse($request);
+        } catch (\Throwable $th) {
+            return $response
+                ->setSuccess()
+                ->setMessage($th->getMessage())
+                ->setCode($th->getCode())
+                ->toResponse($request);
+        }
     }
 
 

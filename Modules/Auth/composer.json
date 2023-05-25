@@ -1,0 +1,23 @@
+{
+    "name": "0x17/auth",
+    "description": "",
+    "authors": [
+        {
+            "name": "Ashraf Ali",
+            "email": "ashrafammar230@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Auth\\": ""
+        }
+    }
+}

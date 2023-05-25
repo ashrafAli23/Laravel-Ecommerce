@@ -6,6 +6,6 @@ namespace Modules\User\Repositories\Interfaces;
 
 use Modules\Common\Repositories\Interfaces\IRepository;
 
-interface IUser extends IRepository
+interface IUserRepository extends IRepository
 {
 }

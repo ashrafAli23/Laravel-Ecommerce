@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\User\Http\Response;
+namespace Modules\Common\Http\Response;
 
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;

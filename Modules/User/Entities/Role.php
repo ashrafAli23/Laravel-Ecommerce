@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Modules\User\Database\factories\RoleFactory;
+use Modules\User\traits\Permission;
 
 class Role extends Model
 {
-    use HasFactory;
+    use HasFactory, Permission;
 
     protected $fillable = [
         'name',
@@ -19,8 +20,6 @@ class Role extends Model
         'permissions',
         'description',
         'is_default',
-        'created_by',
-        'updated_by',
     ];
 
     protected $casts = [

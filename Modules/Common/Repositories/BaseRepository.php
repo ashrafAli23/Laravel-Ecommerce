@@ -69,7 +69,7 @@ abstract class BaseRepository implements IRepository
     }
 
     /**
-     * @return $this
+     * @return self
      */
     public function resetModel(): self
     {
@@ -78,7 +78,11 @@ abstract class BaseRepository implements IRepository
         return $this;
     }
 
-
+    /**
+     * @param [type] $id
+     * @param array $with
+     * @return void
+     */
     public function findOrFail($id, array $with = [])
     {
         $data = $this->make($with)->where('id', $id);
@@ -92,6 +96,10 @@ abstract class BaseRepository implements IRepository
         throw (new ModelNotFoundException())->setModel(get_class($this->originalModel), $id);
     }
 
+    /**
+     * @param array $with
+     * @return void
+     */
     public function all(array $with = [])
     {
         $data = $this->make($with);
@@ -114,6 +122,12 @@ abstract class BaseRepository implements IRepository
         return $this->applyBeforeExecuteQuery($data)->pluck($column, $key)->all();
     }
 
+    /**
+     * @param array $condition
+     * @param array $with
+     * @param array $select
+     * @return void
+     */
     public function allBy(array $condition, array $with = [], array $select = ['*'])
     {
         $this->applyConditions($condition);
