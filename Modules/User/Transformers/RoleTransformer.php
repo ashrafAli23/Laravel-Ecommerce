@@ -18,7 +18,9 @@ class RoleTransformer extends JsonResource
     {
         return [
             'id' => $request->id,
-            // '' => '',
+            'name' => $request->name,
+            'permissions' => $request->permissions,
+            'description' => $request->description
         ];
     }
 }
