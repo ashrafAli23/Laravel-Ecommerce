@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\User\Entities;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\User\Database\factories\UserFactory;
@@ -26,6 +27,11 @@ class User extends Authenticatable
     protected static function newFactory()
     {
         return UserFactory::new();
+    }
+
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id');
     }
 
     public function isSuperUser(): bool

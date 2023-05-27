@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\User\traits;
+namespace Modules\Auth\traits;
 
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\Request;

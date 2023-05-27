@@ -17,7 +17,7 @@ class SelectedList
      * @param array $listIds
      * @return SelectedList
      */
-    public function create(array $listIds): SelectedList
+    public static function create(array $listIds): SelectedList
     {
         return new self($listIds);
     }

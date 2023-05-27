@@ -3,6 +3,7 @@
 namespace Modules\User\Dto;
 
 use Illuminate\Support\Str;
+use Modules\User\Http\Requests\CreateRoleRequest;
 
 class CreateRoleDto
 {
@@ -28,8 +29,8 @@ class CreateRoleDto
      * @param array $permissions
      * @return self
      */
-    public function create(string $name, string $description, bool $is_default, array $permissions): self
+    public static function create(CreateRoleRequest $createRoleRequest): self
     {
-        return new self($name, $description, $is_default, $permissions);
+        return new self($createRoleRequest->name, $createRoleRequest->description, $createRoleRequest->is_default, $createRoleRequest->permissions);
     }
 }
