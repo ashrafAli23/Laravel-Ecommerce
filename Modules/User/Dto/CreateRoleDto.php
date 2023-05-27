@@ -31,6 +31,6 @@ class CreateRoleDto
      */
     public static function create(CreateRoleRequest $createRoleRequest): self
     {
-        return new self($createRoleRequest->name, $createRoleRequest->description, $createRoleRequest->is_default, $createRoleRequest->permissions);
+        return new self($createRoleRequest->name, $createRoleRequest->description ?? "", $createRoleRequest->is_default ?? false, $createRoleRequest->permissions ?? []);
     }
 }

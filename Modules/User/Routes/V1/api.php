@@ -9,13 +9,6 @@ use Modules\User\Http\Controllers\RoleController;
 use Modules\User\Http\Controllers\UserController;
 
 
-
-
-Route::middleware([])->group(function () {
-    Route::get('/user', [UserController::class, 'index']);
-});
-
-
 Route::middleware([])->group(function () {
 
     /**
