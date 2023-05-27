@@ -6,18 +6,20 @@ namespace Modules\User\Service;
 
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Modules\Common\Dto\SelectedList;
 use Modules\Common\Http\Response\BaseResponse;
+use Modules\User\Dto\CreateUserDto;
+use Modules\User\Repositories\Interfaces\IRoleRepository;
 use Modules\User\Repositories\Interfaces\IUserRepository;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserService
 {
-    private IUserRepository $userRepository;
-
-    public function __construct(IUserRepository $userRepository)
-    {
-        $this->userRepository = $userRepository;
+    public function __construct(
+        private IUserRepository $userRepository,
+        private IRoleRepository $roleRepository
+    ) {
     }
 
     public function findAll(Request $request)
@@ -55,9 +57,22 @@ class UserService
         return $user;
     }
 
-    public function create(Request $request)
+    public function create(CreateUserDto $createUserDto)
     {
-        $user = $this->userRepository->create([]);
+        $user = $this->userRepository->createOrUpdate([
+            'first_name' => $createUserDto->first_name,
+            'last_name' => $createUserDto->last_name,
+            'username' => $createUserDto->username,
+            'email' => $createUserDto->email,
+            'password' => Hash::make($createUserDto->password)
+        ]);
+        if (isset($createUserDto->roleId)) {
+            $role = $this->roleRepository->findById($createUserDto->roleId);
+            if (!empty($role)) {
+                $role->users()->attach($user->id);
+            }
+        }
+        return $user;
     }
 
     public function findOne(Request $request, int $id)

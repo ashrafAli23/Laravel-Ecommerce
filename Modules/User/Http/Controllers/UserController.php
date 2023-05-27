@@ -6,74 +6,75 @@ namespace Modules\User\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Routing\Controller;
 use Modules\Common\Http\Response\BaseResponse;
+use Modules\User\Dto\CreateUserDto;
+use Modules\User\Http\Requests\CreateUserRequest;
 use Modules\User\Service\UserService;
+use Modules\User\Transformers\UserTransformer;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
-
-    private UserService $userService;
-    public function __construct(UserService $userService)
+    public function __construct(private UserService $userService)
     {
-        $this->userService = $userService;
     }
 
-    public function index(Request $request, BaseResponse $response): JsonResponse
+    /**
+     * @param Request $request
+     * @param BaseResponse $baseResponse
+     * @return JsonResponse|JsonResource
+     */
+    public function index(Request $request, BaseResponse $baseResponse): JsonResponse|JsonResource
     {
         try {
             $user = $this->userService->findAll($request);
-
-            return $response->setMessage("Empty data")
-                ->toResponse($request);
+            return $baseResponse
+                ->setMessage("Success")
+                ->setData(UserTransformer::collection($user))
+                ->toApiResponse();
         } catch (\Throwable $th) {
-            return $response
+            return $baseResponse
                 ->setSuccess()
                 ->setMessage($th->getMessage())
                 ->setCode($th->getCode())
-                ->toResponse($request);
+                ->toApiResponse();
         }
     }
 
-
-
     /**
-     * Store a newly created resource in storage.
-     * @param Request $request
-     * @return Renderable
+     * @param CreateUserRequest $request
+     * @param BaseResponse $baseResponse
+     * @return JsonResponse|JsonResource
      */
-    public function store(Request $request)
+    public function create(CreateUserRequest $request, BaseResponse $baseResponse): JsonResponse|JsonResource
     {
-        //
+        try {
+            $user = $this->userService->create(CreateUserDto::create($request));
+            return $baseResponse
+                ->setCode(Response::HTTP_CREATED)
+                ->setMessage("Created successfully")
+                ->setData($user)
+                ->toApiResponse();
+        } catch (\Throwable $th) {
+            return $baseResponse
+                ->setSuccess(false)
+                ->setCode(Response::HTTP_BAD_REQUEST)
+                ->setMessage($th->getMessage())
+                ->toApiResponse();
+        }
     }
 
-    /**
-     * Show the specified resource.
-     * @param int $id
-     * @return Renderable
-     */
     public function show($id)
     {
-        return view('user::show');
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     * @param Request $request
-     * @param int $id
-     * @return Renderable
-     */
     public function update(Request $request, $id)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     * @param int $id
-     * @return Renderable
-     */
     public function destroy($id)
     {
         //

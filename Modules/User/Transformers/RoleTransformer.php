@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\User\Transformers;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -14,6 +16,9 @@ class RoleTransformer extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'id' => $request->id,
+            // '' => '',
+        ];
     }
 }

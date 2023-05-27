@@ -23,7 +23,7 @@ class RoleService
         $this->userRepository = $userRepository;
     }
 
-    public function index()
+    public function findAll()
     {
         $roles = $this->roleRepository->all();
         if (empty($roles)) {

@@ -6,6 +6,7 @@ namespace Modules\User\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Routing\Controller;
 use Modules\Common\Dto\SelectedList;
 use Modules\Common\Http\Response\BaseResponse;
@@ -13,6 +14,7 @@ use Modules\User\Dto\AssignRoleDto;
 use Modules\User\Dto\CreateRoleDto;
 use Modules\User\Http\Requests\CreateRoleRequest;
 use Modules\User\Service\RoleService;
+use Modules\User\Transformers\RoleTransformer;
 use Symfony\Component\HttpFoundation\Response;
 
 class RoleController extends Controller
@@ -21,31 +23,38 @@ class RoleController extends Controller
     {
     }
 
-    public function index(BaseResponse $response): JsonResponse
+    public function index(BaseResponse $response): JsonResponse|JsonResource
     {
         try {
-            $roles = $this->roleService->index();
-            return $response->setData($roles)->toApiResponse();
+            $roles = $this->roleService->findAll();
+            return $response->setData(RoleTransformer::collection($roles))->toApiResponse();
         } catch (\Throwable $th) {
             return $response
-                ->setSuccess()->setCode(Response::HTTP_FORBIDDEN)
-                ->setMessage($th->getMessage())->toApiResponse();
+                ->setSuccess()
+                ->setCode(Response::HTTP_FORBIDDEN)
+                ->setMessage($th->getMessage())
+                ->toApiResponse();
         }
     }
 
-    public function create(CreateRoleRequest $request, BaseResponse $baseResponse): JsonResponse
+    public function create(CreateRoleRequest $request, BaseResponse $baseResponse): JsonResponse|JsonResource
     {
         try {
             $roles = $this->roleService->create(CreateRoleDto::create($request));
+
             return $baseResponse
                 ->setCode(Response::HTTP_CREATED)
-                ->setData($roles)
+                ->setData(new RoleTransformer($roles))
                 ->toApiResponse();
         } catch (\Throwable $th) {
             return $baseResponse
                 ->setSuccess(false)
                 ->setCode(Response::HTTP_BAD_REQUEST)
-                ->setMessage($th->getMessage())
+                ->setMessage(
+                    ($th->getCode() == '23000') ?
+                        "This '$request->name' already exists" :
+                        $th->getMessage()
+                )
                 ->toApiResponse();
         }
     }
