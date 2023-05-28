@@ -21,7 +21,21 @@ class User extends Authenticatable
         'last_name',
         'username',
         'last_login',
-        'super_user'
+        'super_user',
+        'email',
+        'password'
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'email_verified_at'
+    ];
+
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'super_user' => 'bool'
     ];
 
     protected static function newFactory()

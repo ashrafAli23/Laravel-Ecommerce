@@ -12,6 +12,18 @@ use Modules\User\Http\Controllers\UserController;
 Route::middleware([])->group(function () {
 
     /**
+     * Users Routes
+     */
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserController::class, 'index']);
+        Route::post('/', [UserController::class, 'create']);
+        Route::delete('/', [UserController::class, 'deletes']);
+        Route::get('/{id}', [UserController::class, 'show']);
+        Route::get('/{id}', [UserController::class, 'update']);
+        Route::delete('/{id}', [UserController::class, 'destroy']);
+    });
+
+    /**
      * Roles Routes
      */
     Route::prefix('roles')->group(function () {

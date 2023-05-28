@@ -13,7 +13,7 @@ class CreateUserDto
     public readonly string $username;
     public readonly string $email;
     public readonly string $password;
-    public readonly int $roleId;
+    public readonly int|null $roleId;
 
     public function __construct(
         string $first_name,
@@ -21,7 +21,7 @@ class CreateUserDto
         string $username,
         string $email,
         string $password,
-        int $roleId,
+        int|null $roleId,
     ) {
         $this->first_name = $first_name;
         $this->last_name = $last_name;

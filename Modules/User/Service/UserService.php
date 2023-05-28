@@ -30,9 +30,9 @@ class UserService
         }
 
         $query = $this->userRepository
-            ->getModel()
-            ->leftJoin('user_roles', 'users.id', '=', 'user_roles.user_id')
-            ->leftJoin('roles', 'roles.id', '=', 'user_roles.role_id');
+            ->getModel();
+        // ->rightJoin('user_roles', 'users.id', '=', 'user_roles.user_id')
+        // ->rightJoin('roles', 'roles.id', '=', 'user_roles.role_id');
 
         if (isset($request->username) || isset($request->search)) {
             $query->where('users.username', '=', $request->username)
@@ -43,8 +43,10 @@ class UserService
             'users.id as id',
             'username',
             'email',
-            'roles.name as role_name',
-            'roles.id as role_id',
+            'first_name',
+            'last_name',
+            // 'roles.name as role_name',
+            // 'roles.id as role_id',
             'users.updated_at as updated_at',
             'users.created_at as created_at',
             'super_user',
@@ -89,10 +91,9 @@ class UserService
     {
     }
 
-    public function delete(Request $request, int $id)
+    public function destroy(Request $request, int $id)
     {
         $user = $this->userRepository->findOrFail($id);
-
         if (!$request->user()->isSuperUser() && $user->isSuperUser()) {
             throw new Exception("Can not delete super admin", Response::HTTP_BAD_REQUEST);
         }
@@ -102,7 +103,7 @@ class UserService
     public function deletes(Request $request, SelectedList $list)
     {
         $listId = $list->listIds;
-        if (empty($listIds)) {
+        if (empty($listId)) {
             throw new Exception("Please select at least one record to perform this action!", Response::HTTP_BAD_REQUEST);
         }
 
