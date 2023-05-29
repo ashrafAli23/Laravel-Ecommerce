@@ -14,13 +14,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleService
 {
-    private IRoleRepository $roleRepository;
-    private IUserRepository $userRepository;
-
-    public function __construct(IRoleRepository $roleRepository, IUserRepository $userRepository)
-    {
-        $this->roleRepository = $roleRepository;
-        $this->userRepository = $userRepository;
+    public function __construct(
+        private IRoleRepository $roleRepository,
+        private IUserRepository $userRepository
+    ) {
     }
 
     public function findAll()

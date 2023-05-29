@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace Modules\User\Service;
 
 use Exception;
+use Illuminate\Auth\Events\OtherDeviceLogout;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Modules\Common\Dto\SelectedList;
 use Modules\Common\Http\Response\BaseResponse;
 use Modules\User\Dto\CreateUserDto;
+use Modules\User\Dto\UpdatePasswordDto;
+use Modules\User\Dto\UpdateUserDto;
 use Modules\User\Repositories\Interfaces\IRoleRepository;
 use Modules\User\Repositories\Interfaces\IUserRepository;
 use Symfony\Component\HttpFoundation\Response;
@@ -79,16 +84,52 @@ class UserService
 
     public function findOne(Request $request, int $id)
     {
-        if ($request->user()->isSuperUser() || $request->user()->id == $id) {
-            $user = $this->userRepository->findById($id);
-            return $user;
+        if (!$request->user()->isSuperUser() || $request->user()->id !== $id) {
+            throw new Exception("User not found", 404);
         }
 
-        throw new Exception("User not found", 404);
+        $user = $this->userRepository->findById($id);
+        return $user;
     }
 
-    public function update(Request $request)
+    public function update(Request $request, UpdateUserDto $updateUserDto, int $id)
     {
+        $user = $this->userRepository->findOrFail($id);
+        $userRequest = $request->user();
+
+        if (!$userRequest->isSuperUser() || $userRequest->id !== $user->id) {
+            throw new Exception("Unauthorized", Response::HTTP_UNAUTHORIZED);
+        }
+
+        if ($updateUserDto->email != $user->email) {
+            $email = $this->userRepository
+                ->getModel()
+                ->where('email', $updateUserDto->email)
+                ->exists();
+
+            if ($email) {
+                throw new Exception("Email already exists", Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+        if ($updateUserDto->username != $user->username) {
+            $username = $this->userRepository
+                ->getModel()
+                ->where('username', $updateUserDto->username)
+                ->exists();
+
+            if ($username) {
+                throw new Exception("Username already exists", Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+        $user->fill([
+            'username' => $updateUserDto->username,
+            'first_name' => $updateUserDto->first_name,
+            'last_name' => $updateUserDto->last_name,
+            'email' => $updateUserDto->email
+        ]);
+        $this->userRepository->createOrUpdate($user);
     }
 
     public function destroy(Request $request, int $id)
@@ -117,6 +158,31 @@ class UserService
                 continue;
             }
             $this->userRepository->delete($user);
+        }
+    }
+
+    public function changePassword(Request $request, UpdatePasswordDto $updatePasswordDto, int $id)
+    {
+        try {
+            DB::beginTransaction();
+            $user = $this->userRepository->findOrFail($id);
+            $requestUser = $request->user();
+            if (!$requestUser->isSuperUser() || $requestUser->id !== $user->id) {
+                throw new Exception("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            if (Hash::check($updatePasswordDto->password, $user->password)) {
+                throw new Exception("Invalid password", Response::HTTP_BAD_REQUEST);
+            }
+            $user->password = Hash::make($updatePasswordDto->password);
+
+            $this->userRepository->createOrUpdate($user);
+            $user->tokens()->delete();
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw new Exception($th->getMessage(), $th->getCode());
         }
     }
 }

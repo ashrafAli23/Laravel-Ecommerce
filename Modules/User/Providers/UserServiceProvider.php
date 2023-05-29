@@ -10,6 +10,7 @@ use Modules\User\Repositories\Eloquent\RoleRepository;
 use Modules\User\Repositories\Interfaces\IUserRepository;
 use Modules\User\Repositories\Eloquent\UserRepository;
 use Modules\User\Repositories\Interfaces\IRoleRepository;
+use Modules\User\Service\UserService;
 
 class UserServiceProvider extends ServiceProvider
 {
@@ -48,6 +49,8 @@ class UserServiceProvider extends ServiceProvider
         $this->app->bind(IUserRepository::class, function () {
             return new UserRepository(new User());
         });
+
+        $this->app->bind("UserService", UserService::class);
 
         $this->app->bind(IRoleRepository::class, function () {
             return new RoleRepository(new Role());

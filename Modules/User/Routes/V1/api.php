@@ -10,7 +10,6 @@ use Modules\User\Http\Controllers\UserController;
 
 
 Route::middleware([])->group(function () {
-
     /**
      * Users Routes
      */
@@ -18,8 +17,9 @@ Route::middleware([])->group(function () {
         Route::get('/', [UserController::class, 'index']);
         Route::post('/', [UserController::class, 'create']);
         Route::delete('/', [UserController::class, 'deletes']);
+        Route::put('/{id}/change-password', [UserController::class, 'changePassword']);
         Route::get('/{id}', [UserController::class, 'show']);
-        Route::get('/{id}', [UserController::class, 'update']);
+        Route::put('/{id}', [UserController::class, 'update']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
     });
 
@@ -31,7 +31,7 @@ Route::middleware([])->group(function () {
         Route::post('/', [RoleController::class, 'create']);
         Route::delete('/', [RoleController::class, 'deletes']);
         Route::put('/{id}', [RoleController::class, 'update']);
-        Route::put('/assign-role', [RoleController::class, 'assignRole']);
         Route::delete('/{id}', [RoleController::class, 'destroy']);
+        Route::put('/assign-role', [RoleController::class, 'assignRole']);
     });
 });

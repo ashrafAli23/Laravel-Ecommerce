@@ -17,10 +17,10 @@ class RoleTransformer extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $request->id,
-            'name' => $request->name,
-            'permissions' => $request->permissions,
-            'description' => $request->description
+            'id' => $this->id,
+            'name' => $this->name,
+            'permissions' => $this->permissions,
+            'description' => $this->description
         ];
     }
 }

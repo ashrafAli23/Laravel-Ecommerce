@@ -3,7 +3,7 @@
 namespace Modules\User\Dto;
 
 use Illuminate\Support\Str;
-use Modules\User\Http\Requests\CreateRoleRequest;
+use Modules\User\Http\Requests\V1\CreateRoleRequest;
 
 class CreateRoleDto
 {

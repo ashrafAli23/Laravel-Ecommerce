@@ -141,7 +141,7 @@ abstract class BaseRepository implements IRepository
      * @param array $where
      * @param null|Eloquent $model
      */
-    protected function applyConditions(array $where, &$model = null)
+    private function applyConditions(array $where, &$model = null)
     {
         if (!$model) {
             $newModel = $this->model;

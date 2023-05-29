@@ -12,7 +12,7 @@ use Modules\Common\Dto\SelectedList;
 use Modules\Common\Http\Response\BaseResponse;
 use Modules\User\Dto\AssignRoleDto;
 use Modules\User\Dto\CreateRoleDto;
-use Modules\User\Http\Requests\CreateRoleRequest;
+use Modules\User\Http\Requests\V1\CreateRoleRequest;
 use Modules\User\Service\RoleService;
 use Modules\User\Transformers\RoleTransformer;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,6 +23,10 @@ class RoleController extends Controller
     {
     }
 
+    /**
+     * @param BaseResponse $response
+     * @return JsonResponse|JsonResource
+     */
     public function index(BaseResponse $response): JsonResponse|JsonResource
     {
         try {
@@ -37,6 +41,11 @@ class RoleController extends Controller
         }
     }
 
+    /**
+     * @param CreateRoleRequest $request
+     * @param BaseResponse $baseResponse
+     * @return JsonResponse|JsonResource
+     */
     public function create(CreateRoleRequest $request, BaseResponse $baseResponse): JsonResponse|JsonResource
     {
         try {
@@ -59,6 +68,12 @@ class RoleController extends Controller
         }
     }
 
+    /**
+     * @param CreateRoleRequest $request
+     * @param integer $id
+     * @param BaseResponse $baseResponse
+     * @return JsonResponse
+     */
     public function update(CreateRoleRequest $request, int $id, BaseResponse $baseResponse): JsonResponse
     {
         try {
@@ -75,6 +90,11 @@ class RoleController extends Controller
         }
     }
 
+    /**
+     * @param integer $id
+     * @param BaseResponse $baseResponse
+     * @return JsonResponse
+     */
     public function destroy(int $id, BaseResponse $baseResponse): JsonResponse
     {
         try {
@@ -91,6 +111,11 @@ class RoleController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @param BaseResponse $baseResponse
+     * @return JsonResponse
+     */
     public function deletes(Request $request, BaseResponse $baseResponse): JsonResponse
     {
         try {
@@ -104,6 +129,11 @@ class RoleController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @param BaseResponse $baseResponse
+     * @return JsonResponse
+     */
     public function assignRole(Request $request, BaseResponse $baseResponse): JsonResponse
     {
         try {

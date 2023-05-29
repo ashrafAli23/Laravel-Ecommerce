@@ -12,17 +12,17 @@ use Modules\Common\Dto\SelectedList;
 use Modules\Common\Http\Requests\SelectedListRequest;
 use Modules\Common\Http\Response\BaseResponse;
 use Modules\User\Dto\CreateUserDto;
-use Modules\User\Http\Requests\CreateUserRequest;
-use Modules\User\Service\UserService;
+use Modules\User\Dto\UpdatePasswordDto;
+use Modules\User\Dto\UpdateUserDto;
+use Modules\User\Facades\UserFacade;
+use Modules\User\Http\Requests\V1\CreateUserRequest;
+use Modules\User\Http\Requests\V1\UpdatePasswordRequest;
+use Modules\User\Http\Requests\V1\UpdateUserRequest;
 use Modules\User\Transformers\UserTransformer;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
-    public function __construct(private UserService $userService)
-    {
-    }
-
     /**
      * @param Request $request
      * @param BaseResponse $baseResponse
@@ -31,7 +31,8 @@ class UserController extends Controller
     public function index(Request $request, BaseResponse $baseResponse): JsonResponse|JsonResource
     {
         try {
-            $user = $this->userService->findAll($request);
+
+            $user = UserFacade::findAll($request);
             return $baseResponse
                 ->setMessage("Success")
                 ->setData(UserTransformer::collection($user))
@@ -53,7 +54,7 @@ class UserController extends Controller
     public function create(CreateUserRequest $request, BaseResponse $baseResponse): JsonResponse|JsonResource
     {
         try {
-            $user = $this->userService->create(CreateUserDto::create($request));
+            $user = UserFacade::create(CreateUserDto::create($request));
             return $baseResponse
                 ->setCode(Response::HTTP_CREATED)
                 ->setMessage("Created successfully")
@@ -77,7 +78,7 @@ class UserController extends Controller
     public function show(Request $request, int $id, BaseResponse $baseResponse): JsonResponse|JsonResource
     {
         try {
-            $user = $this->userService->findOne($request, $id);
+            $user = UserFacade::findOne($request, $id);
             return $baseResponse->setMessage("Success")
                 ->setData(new UserTransformer($user))
                 ->toApiResponse();
@@ -89,10 +90,17 @@ class UserController extends Controller
         }
     }
 
-    public function update(Request $request, int $id, BaseResponse $baseResponse): JsonResource|JsonResponse
+    /**
+     * @param UpdateUserRequest $request
+     * @param integer $id
+     * @param BaseResponse $baseResponse
+     * @return JsonResource|JsonResponse
+     */
+    public function update(UpdateUserRequest $request, int $id, BaseResponse $baseResponse): JsonResource|JsonResponse
     {
         try {
-            // $this->userService->update();
+            UserFacade::update($request, UpdateUserDto::create($request), $id);
+            return $baseResponse->setMessage("Updated successfully")->toApiResponse();
         } catch (\Throwable $th) {
             return $baseResponse
                 ->setSuccess(false)
@@ -102,10 +110,16 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @param integer $id
+     * @param BaseResponse $baseResponse
+     * @return JsonResource|JsonResponse
+     */
     public function destroy(Request $request, int $id, BaseResponse $baseResponse): JsonResource|JsonResponse
     {
         try {
-            $this->userService->destroy($request, $id);
+            UserFacade::destroy($request, $id);
             return $baseResponse
                 ->setMessage("Deleted successfully")
                 ->toApiResponse();
@@ -118,16 +132,42 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * @param SelectedListRequest $request
+     * @param BaseResponse $baseResponse
+     * @return JsonResource|JsonResponse
+     */
     public function deletes(SelectedListRequest $request, BaseResponse $baseResponse): JsonResource|JsonResponse
     {
         try {
-            $this->userService->deletes($request, SelectedList::create($request));
+            UserFacade::deletes($request, SelectedList::create($request));
             return $baseResponse->setData("Deletes successfully")->toApiResponse();
         } catch (\Throwable $th) {
             return $baseResponse
                 ->setSuccess(false)
                 ->setMessage($th->getMessage())
                 ->setCode(Response::HTTP_BAD_REQUEST)
+                ->toApiResponse();
+        }
+    }
+
+    /**
+     * @param UpdatePasswordRequest $request
+     * @param integer $id
+     * @param BaseResponse $baseResponse
+     * @return JsonResponse|JsonResource
+     */
+    public function changePassword(UpdatePasswordRequest $request, int $id, BaseResponse $baseResponse): JsonResponse|JsonResource
+    {
+
+        try {
+            UserFacade::changePassword($request, UpdatePasswordDto::create($request), $id);
+            return $baseResponse->setMessage("Updated successfully")->toApiResponse();
+        } catch (\Throwable $th) {
+            return $baseResponse
+                ->setSuccess(false)
+                ->setMessage($th->getMessage())
+                ->setCode($th->getCode())
                 ->toApiResponse();
         }
     }
