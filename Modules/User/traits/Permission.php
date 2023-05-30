@@ -107,7 +107,7 @@ trait Permission
      * @param string $permission
      * @return bool
      */
-    protected function checkPermission(array $prepared, string $permission): bool
+    private function checkPermission(array $prepared, string $permission): bool
     {
         if (array_key_exists($permission, $prepared) && $prepared[$permission] === true) {
             return true;
