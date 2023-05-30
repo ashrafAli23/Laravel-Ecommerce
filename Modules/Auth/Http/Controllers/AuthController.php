@@ -2,78 +2,48 @@
 
 namespace Modules\Auth\Http\Controllers;
 
-use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Modules\Auth\Dto\LoginDto;
+use Modules\Auth\Http\Requests\LoginRequest;
+use Modules\Auth\Services\AuthService;
+use Modules\Common\Http\Response\BaseResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     * @return Renderable
-     */
-    public function index()
+    public function __construct(private readonly AuthService $authService)
     {
-        return view('auth::index');
+    }
+    public function login(LoginRequest $request, BaseResponse $baseResponse)
+    {
+        try {
+            $token = $this->authService->login(LoginDto::create($request));
+            return $baseResponse
+                ->setMessage("Login success")
+                ->setData(["token" => $token])
+                ->toApiResponse();
+        } catch (\Throwable $th) {
+            return $baseResponse
+                ->setCode(Response::HTTP_BAD_REQUEST)
+                ->setMessage($th->getMessage())
+                ->setSuccess(false)
+                ->toApiResponse();
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     * @return Renderable
-     */
-    public function create()
-    {
-        return view('auth::create');
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     * @param Request $request
-     * @return Renderable
-     */
-    public function store(Request $request)
+    public function logout(Request $request, BaseResponse $baseResponse)
     {
-        //
-    }
-
-    /**
-     * Show the specified resource.
-     * @param int $id
-     * @return Renderable
-     */
-    public function show($id)
-    {
-        return view('auth::show');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     * @param int $id
-     * @return Renderable
-     */
-    public function edit($id)
-    {
-        return view('auth::edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     * @param Request $request
-     * @param int $id
-     * @return Renderable
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     * @param int $id
-     * @return Renderable
-     */
-    public function destroy($id)
-    {
-        //
+        try {
+            $request->user()->tokens()->delete();
+            return $baseResponse->setMessage("Logout successfull")->toApiResponse();
+        } catch (\Throwable $th) {
+            return $baseResponse
+                ->setSuccess(false)
+                ->setCode(Response::HTTP_BAD_REQUEST)
+                ->setMessage("Failed to logout")
+                ->toApiResponse();
+        }
     }
 }
