@@ -377,10 +377,16 @@ abstract class BaseRepository implements IRepository
             $result = $this->applyBeforeExecuteQuery($data)->take((int)$params['take'])->get();
         } elseif ($params['paginate']['per_page']) {
             $paginateType = 'paginate';
-
-            if (Arr::get($params, 'paginate.type') && method_exists($data, Arr::get($params, 'paginate.type'))) {
-                $paginateType = Arr::get($params, 'paginate.type');
+            if ($params['paginate']['per_page'] > 100) {
+                $params['paginate']['per_page'] = 100;
             }
+
+            // if (Arr::get($params, 'paginate.type') && method_exists(
+            //     $data,
+            //     Arr::get($params, 'paginate.type')
+            // )) {
+            //     $paginateType = Arr::get($params, 'paginate.type');
+            // }
 
             $result = $this->applyBeforeExecuteQuery($data)
                 ->$paginateType(

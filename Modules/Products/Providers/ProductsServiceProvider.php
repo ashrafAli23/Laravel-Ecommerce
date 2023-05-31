@@ -4,6 +4,9 @@ namespace Modules\Products\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
+use Modules\Products\Entities\Brand;
+use Modules\Products\Repositories\Eloquent\BrandRepository;
+use Modules\Products\Repositories\Interfaces\IBrandRepository;
 
 class ProductsServiceProvider extends ServiceProvider
 {
@@ -38,6 +41,9 @@ class ProductsServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->register(RouteServiceProvider::class);
+        $this->app->bind(IBrandRepository::class, function () {
+            return new BrandRepository(new Brand());
+        });
     }
 
     /**
@@ -51,7 +57,8 @@ class ProductsServiceProvider extends ServiceProvider
             module_path($this->moduleName, 'Config/config.php') => config_path($this->moduleNameLower . '.php'),
         ], 'config');
         $this->mergeConfigFrom(
-            module_path($this->moduleName, 'Config/config.php'), $this->moduleNameLower
+            module_path($this->moduleName, 'Config/config.php'),
+            $this->moduleNameLower
         );
     }
 
