@@ -1,5 +1,6 @@
 {
     "Common": true,
     "User": true,
-    "Auth": true
+    "Auth": true,
+    "Products": true
 }
