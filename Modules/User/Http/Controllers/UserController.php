@@ -159,7 +159,6 @@ class UserController extends Controller
      */
     public function changePassword(UpdatePasswordRequest $request, int $id, BaseResponse $baseResponse): JsonResponse|JsonResource
     {
-
         try {
             UserFacade::changePassword($request, UpdatePasswordDto::create($request), $id);
             return $baseResponse->setMessage("Updated successfully")->toApiResponse();

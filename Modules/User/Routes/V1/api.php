@@ -9,7 +9,7 @@ use Modules\User\Http\Controllers\RoleController;
 use Modules\User\Http\Controllers\UserController;
 
 
-Route::middleware([])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     /**
      * Users Routes
      */

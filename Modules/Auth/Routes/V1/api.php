@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Modules\Auth\Http\Controllers\AuthController;
 
-Route::prefix('auth')->middleware([''])->group(function () {
+Route::prefix('auth')->group(function () {
     // Route::post('/register', [UserAuthController::class, 'register']);
     // Route::post('/login', [UserAuthController::class, 'login']);
     // Route::get('/logout', [UserAuthController::class, 'logout'])->middleware(['auth:sanctum']);

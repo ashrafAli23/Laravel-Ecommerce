@@ -21,6 +21,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserService
 {
+    /**
+     * @param IUserRepository $userRepository
+     * @param IRoleRepository $roleRepository
+     */
     public function __construct(
         private IUserRepository $userRepository,
         private IRoleRepository $roleRepository
@@ -84,12 +88,11 @@ class UserService
 
     public function findOne(Request $request, int $id)
     {
-        if (!$request->user()->isSuperUser() || $request->user()->id !== $id) {
-            throw new Exception("User not found", 404);
+        if ($request->user()->isSuperUser() || $request->user()->id == $id) {
+            $user = $this->userRepository->findById($id);
+            return $user;
         }
-
-        $user = $this->userRepository->findById($id);
-        return $user;
+        throw new Exception("User not found", 404);
     }
 
     public function update(Request $request, UpdateUserDto $updateUserDto, int $id)
@@ -97,8 +100,10 @@ class UserService
         $user = $this->userRepository->findOrFail($id);
         $userRequest = $request->user();
 
-        if (!$userRequest->isSuperUser() || $userRequest->id !== $user->id) {
-            throw new Exception("Unauthorized", Response::HTTP_UNAUTHORIZED);
+        if (!$userRequest->isSuperUser()) {
+            if ($userRequest->id !== $user->id) {
+                throw new Exception("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
         }
 
         if ($updateUserDto->email != $user->email) {
@@ -167,8 +172,10 @@ class UserService
             DB::beginTransaction();
             $user = $this->userRepository->findOrFail($id);
             $requestUser = $request->user();
-            if (!$requestUser->isSuperUser() || $requestUser->id !== $user->id) {
-                throw new Exception("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            if (!$requestUser->isSuperUser()) {
+                if ($requestUser->id !== $user->id) {
+                    throw new Exception("Unauthorized", Response::HTTP_UNAUTHORIZED);
+                }
             }
 
             if (Hash::check($updatePasswordDto->password, $user->password)) {

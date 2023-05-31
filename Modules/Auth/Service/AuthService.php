@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Auth\Services;
+namespace Modules\Auth\Service;
 
 use Exception;
 use Illuminate\Support\Facades\Hash;

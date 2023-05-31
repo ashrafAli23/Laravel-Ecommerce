@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\Auth\Dto\LoginDto;
 use Modules\Auth\Http\Requests\LoginRequest;
-use Modules\Auth\Services\AuthService;
+use Modules\Auth\Service\AuthService;
 use Modules\Common\Http\Response\BaseResponse;
 use Symfony\Component\HttpFoundation\Response;
 
