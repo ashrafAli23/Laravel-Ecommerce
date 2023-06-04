@@ -71,10 +71,6 @@ class RoleService
     {
         $ids = $list->listIds;
 
-        if (empty($ids)) {
-            throw new Exception("Please select at least one record to perform this action!", Response::HTTP_BAD_REQUEST);
-        }
-
         foreach ($ids as $id) {
             $role = $this->roleRepository->findOrFail($id);
             $this->delete($role);

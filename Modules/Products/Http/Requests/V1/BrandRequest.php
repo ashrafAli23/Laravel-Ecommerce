@@ -16,10 +16,18 @@ class BrandRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'string', 'unique:brands,name'],
-            'description' => ['nullable', 'string', 'min:1', 'max:300'],
-            'order' => ['required', 'integer', 'min:0', 'max:127'],
-            'status' => Rule::in(BaseStatusEnum::toArray())
+            'name' => ['required', 'string', Rule::unique('brands')->ignore($this->id)],
+            'description' => ['nullable', 'string', 'min:3', 'max:300'],
+            'order' => ['required', 'numeric', 'min:0', 'max:127'],
+            'status' => ['required', Rule::in(BaseStatusEnum::toArray())],
+            'is_feature' => ['nullable', 'bool'],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'status.in' => "The status must be one of the following: published, pending, draft.",
         ];
     }
 

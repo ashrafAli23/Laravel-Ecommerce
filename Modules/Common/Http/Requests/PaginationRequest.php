@@ -3,8 +3,9 @@
 namespace Modules\Common\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class SelectedListRequest extends FormRequest
+class PaginationRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -14,7 +15,10 @@ class SelectedListRequest extends FormRequest
     public function rules()
     {
         return [
-            'ids' => ['required', 'min:1'],
+            'page' => ['required', 'numeric', 'min:0'],
+            'per_page' => ['required', 'numeric', 'min:10', 'max:100'],
+            'search' => ['nullable', 'string', 'min:2', 'max:30'],
+            'order_by' => ['nullable', Rule::in(['desc', 'asc'])]
         ];
     }
 

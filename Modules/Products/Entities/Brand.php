@@ -21,9 +21,6 @@ class Brand extends Model
         'order',
         'is_feature',
     ];
-    protected $casts = [
-        'status' => BaseStatusEnum::class,
-    ];
 
     protected static function newFactory()
     {

@@ -149,9 +149,6 @@ class UserService
     public function deletes(Request $request, SelectedList $list)
     {
         $listId = $list->listIds;
-        if (empty($listId)) {
-            throw new Exception("Please select at least one record to perform this action!", Response::HTTP_BAD_REQUEST);
-        }
 
         foreach ($listId as $id) {
             if ($request->user()->id == $id) {

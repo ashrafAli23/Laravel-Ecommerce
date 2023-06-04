@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Routing\Controller;
 use Modules\Common\Dto\SelectedList;
+use Modules\Common\Http\Requests\SelectedListRequest;
 use Modules\Common\Http\Response\BaseResponse;
 use Modules\User\Dto\AssignRoleDto;
 use Modules\User\Dto\CreateRoleDto;
@@ -112,11 +113,11 @@ class RoleController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param SelectedListRequest $request
      * @param BaseResponse $baseResponse
      * @return JsonResponse
      */
-    public function deletes(Request $request, BaseResponse $baseResponse): JsonResponse
+    public function deletes(SelectedListRequest $request, BaseResponse $baseResponse): JsonResponse
     {
         try {
             $this->roleService->deletes(SelectedList::create($request->ids));

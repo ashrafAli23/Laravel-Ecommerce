@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Routing\Controller;
 use Modules\Common\Dto\SelectedList;
+use Modules\Common\Http\Requests\PaginationRequest;
 use Modules\Common\Http\Requests\SelectedListRequest;
 use Modules\Common\Http\Response\BaseResponse;
 use Modules\User\Dto\CreateUserDto;
@@ -24,11 +25,11 @@ use Symfony\Component\HttpFoundation\Response;
 class UserController extends Controller
 {
     /**
-     * @param Request $request
+     * @param PaginationRequest $request
      * @param BaseResponse $baseResponse
      * @return JsonResponse|JsonResource
      */
-    public function index(Request $request, BaseResponse $baseResponse): JsonResponse|JsonResource
+    public function index(PaginationRequest $request, BaseResponse $baseResponse): JsonResponse|JsonResource
     {
         try {
 

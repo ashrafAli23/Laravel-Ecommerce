@@ -125,6 +125,10 @@ class BaseResponse implements Responsable
             $data = array_merge($data, ['additional' => $this->additional]);
         }
 
+        if (!$this->success || !isset($data['data'])) {
+            unset($data['data']);
+        }
+
         return response()
             ->json($data, $this->code);
     }
