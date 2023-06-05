@@ -3,10 +3,12 @@
 namespace Modules\Products\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Database\Eloquent\Factory;
 use Modules\Products\Entities\Brand;
+use Modules\Products\Entities\Category;
 use Modules\Products\Repositories\Eloquent\BrandRepository;
+use Modules\Products\Repositories\Eloquent\CategoryRepository;
 use Modules\Products\Repositories\Interfaces\IBrandRepository;
+use Modules\Products\Repositories\Interfaces\ICategoryRepository;
 
 class ProductsServiceProvider extends ServiceProvider
 {
@@ -41,8 +43,13 @@ class ProductsServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->register(RouteServiceProvider::class);
+
         $this->app->bind(IBrandRepository::class, function () {
             return new BrandRepository(new Brand());
+        });
+
+        $this->app->bind(ICategoryRepository::class, function () {
+            return new CategoryRepository(new Category());
         });
     }
 
