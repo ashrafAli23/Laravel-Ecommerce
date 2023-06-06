@@ -105,6 +105,10 @@ class Handler extends ExceptionHandler
                 break;
             case 422:
                 $response['message'] = $exception->original['errors'];
+                $statusCode = 422;
+                break;
+            case 23000:
+                $response['message'] = "Request entrey must be unique";
                 break;
             default:
                 $response['message'] = ($statusCode == 500) ? 'Whoops, looks like something went wrong' : $exception->getMessage();

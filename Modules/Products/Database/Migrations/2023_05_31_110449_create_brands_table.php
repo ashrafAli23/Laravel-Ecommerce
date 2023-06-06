@@ -11,16 +11,18 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('brands', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->string('name');
+            $table->string('slug')->unique();
             $table->text('description')->nullable();
+            $table->text('meta')->nullable();
             $table->string('logo')->nullable();
             $table->string('status')->default('pending');
             $table->tinyInteger('order')->default(0);
-            $table->boolean('is_feature')->default(false);
+            $table->boolean('is_featured')->default(false);
             $table->timestamps();
         });
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Products\Service;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Modules\Common\Dto\SelectedList;
 use Modules\Products\Dto\CreateBrandDto;
 use Modules\Products\Repositories\Interfaces\IBrandRepository;
@@ -49,10 +50,12 @@ class BrandService
     {
         $brand = $this->brandRepository->createOrUpdate([
             'name' => $createBrandDto->name,
+            'slug' => $createBrandDto->slug,
             'description' => $createBrandDto->description,
             'order' => $createBrandDto->order,
-            'is_feature' => $createBrandDto->is_feature,
+            'is_featured' => $createBrandDto->is_featured,
             'status' => $createBrandDto->status,
+            'meta' => json_encode($createBrandDto->meta)
         ]);
 
         return $brand;
@@ -69,10 +72,12 @@ class BrandService
         $brand->fill([
             'id' => $id,
             'name' => $createBrandDto->name,
+            'slug' => $createBrandDto->slug,
             'description' => $createBrandDto->description,
             'order' => $createBrandDto->order,
-            'is_feature' => $createBrandDto->is_feature,
+            'is_featured' => $createBrandDto->is_featured,
             'status' => $createBrandDto->status,
+            'meta' => json_encode($createBrandDto->meta)
         ]);
 
         return $this->brandRepository->createOrUpdate($brand);

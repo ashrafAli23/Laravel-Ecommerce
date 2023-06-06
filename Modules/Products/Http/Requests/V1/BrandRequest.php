@@ -16,11 +16,15 @@ class BrandRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'string', Rule::unique('brands')->ignore($this->id)],
+            'name' => ['required', 'string'],
+            'slug' => ['required', 'string', 'alpha_dash', Rule::unique('brands')->ignore($this->id)],
             'description' => ['nullable', 'string', 'min:3', 'max:300'],
             'order' => ['required', 'numeric', 'min:0', 'max:127'],
             'status' => ['required', Rule::in(BaseStatusEnum::toArray())],
-            'is_feature' => ['nullable', 'bool'],
+            'is_featured' => ['nullable', 'bool'],
+            'seo_meta' => ['nullable', 'array'],
+            'seo_meta.seo_title' => ['required', 'string'],
+            'seo_meta.seo_desc' => ['required', 'string'],
         ];
     }
 

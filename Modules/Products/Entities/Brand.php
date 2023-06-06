@@ -15,11 +15,18 @@ class Brand extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'description',
         'logo',
         'status',
         'order',
-        'is_feature',
+        'is_featured',
+        'meta'
+    ];
+
+    protected $casts = [
+        'is_featured' => "bool",
+        "meta" => "json"
     ];
 
     protected static function newFactory()
