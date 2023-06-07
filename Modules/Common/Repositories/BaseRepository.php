@@ -15,12 +15,12 @@ abstract class BaseRepository implements IRepository
     /**
      * @var Eloquent | Model
      */
-    private $model;
+    protected $model;
 
     /**
      * @var Eloquent | Model
      */
-    private $originalModel;
+    protected $originalModel;
 
     public function __construct(Model $model)
     {
@@ -126,9 +126,9 @@ abstract class BaseRepository implements IRepository
      * @param array $condition
      * @param array $with
      * @param array $select
-     * @return void
+     * @return array|null
      */
-    public function allBy(array $condition, array $with = [], array $select = ['*'])
+    public function allBy(array $condition, array $with = [], array $select = ['*']): ?array
     {
         $this->applyConditions($condition);
 

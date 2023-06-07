@@ -2,5 +2,6 @@
     "Common": true,
     "User": true,
     "Auth": true,
-    "Products": true
+    "Products": true,
+    "Media": true
 }
