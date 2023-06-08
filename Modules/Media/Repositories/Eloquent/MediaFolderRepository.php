@@ -10,7 +10,7 @@ use Modules\Common\Repositories\BaseRepository;
 use Modules\Common\Repositories\Interfaces\IRepository;
 use Modules\Media\Repositories\Interfaces\IMediaFoldersRepository;
 
-class MediaFoldersRepository extends BaseRepository implements IMediaFoldersRepository
+class MediaFolderRepository extends BaseRepository implements IMediaFoldersRepository
 {
 
     public function getFolderByParentId($folderId, array $params = [], $withTrash = false)

@@ -6,7 +6,7 @@ namespace Modules\Media\Repositories\Interfaces;
 
 use Modules\Common\Repositories\Interfaces\IRepository;
 
-interface IMediaFoldersRepository extends IRepository
+interface IMediaFolderRepository extends IRepository
 {
     /**
      * @param int $folderId

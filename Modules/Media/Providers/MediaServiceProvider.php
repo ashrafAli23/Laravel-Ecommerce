@@ -6,9 +6,10 @@ use Illuminate\Support\ServiceProvider;
 use Modules\Media\Entities\File;
 use Modules\Media\Entities\Folder;
 use Modules\Media\Repositories\Eloquent\MediaFileRepository;
-use Modules\Media\Repositories\Eloquent\MediaFoldersRepository;
+use Modules\Media\Repositories\Eloquent\MediaFolderRepository;
 use Modules\Media\Repositories\Interfaces\IMediaFileRepository;
-use Modules\Media\Repositories\Interfaces\IMediaFoldersRepository;
+use Modules\Media\Repositories\Interfaces\IMediaFolderRepository;
+use Modules\Media\Utils\Media;
 
 class MediaServiceProvider extends ServiceProvider
 {
@@ -44,13 +45,15 @@ class MediaServiceProvider extends ServiceProvider
     {
         $this->app->register(RouteServiceProvider::class);
 
-        $this->app->bind(IMediaFoldersRepository::class, function () {
-            return new MediaFoldersRepository(new Folder());
+        $this->app->bind(IMediaFolderRepository::class, function () {
+            return new MediaFolderRepository(new Folder());
         });
 
         $this->app->bind(IMediaFileRepository::class, function () {
             return new MediaFileRepository(new File());
         });
+
+        $this->app->bind(Media::class, Media::class);
     }
 
     /**

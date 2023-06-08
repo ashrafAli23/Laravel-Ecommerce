@@ -19,5 +19,8 @@
         "psr-4": {
             "Modules\\Media\\": ""
         }
+    },
+    "require": {
+        "xantios/mimey": "^2.2"
     }
 }
