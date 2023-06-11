@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Modules\Common\Repositories\BaseRepository;
 use Modules\Common\Repositories\Interfaces\IRepository;
-use Modules\Media\Repositories\Interfaces\IMediaFoldersRepository;
+use Modules\Media\Repositories\Interfaces\IMediaFolderRepository;
 
-class MediaFolderRepository extends BaseRepository implements IMediaFoldersRepository
+class MediaFolderRepository extends BaseRepository implements IMediaFolderRepository
 {
 
     public function getFolderByParentId($folderId, array $params = [], $withTrash = false)

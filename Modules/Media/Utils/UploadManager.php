@@ -84,9 +84,10 @@ class UploadManager
         UploadedFile $file = null,
         array $visibility = ['visibility' => 'public']
     ): bool {
-        // if (!RvMedia::isChunkUploadEnabled() || !$file) {
-        //     return Storage::put($this->cleanFolder($path), $content, $visibility);
-        // }
+
+        if (!MediaFacade::isChunkUploadEnabled() || !$file) {
+            return Storage::put($this->cleanFolder($path), $content, $visibility);
+        }
 
         $currentChunksPath = MediaFacade::getConfig('chunk.storage.chunks') . '/' . $file->getFilename();
         $disk = Storage::disk(MediaFacade::getConfig('chunk.storage.disk'));

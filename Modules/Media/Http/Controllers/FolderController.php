@@ -39,7 +39,12 @@ class FolderController extends Controller
     public function store(FolderRequest $request, BaseResponse $response): JsonResponse
     {
         try {
-            $media = $this->mediaFolderService->create(MediaFolderDto::create($request));
+            $media = $this->mediaFolderService->create(MediaFolderDto::create(
+                $request->name,
+                $request->user()->id,
+                $request->parent_id
+            ));
+
             return $response
                 ->setCode(Response::HTTP_CREATED)
                 ->setMessage("Created succesfully")

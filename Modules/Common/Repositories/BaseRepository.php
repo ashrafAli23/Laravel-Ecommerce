@@ -79,7 +79,7 @@ abstract class BaseRepository implements IRepository
     }
 
     /**
-     * @param [type] $id
+     * @param int $id
      * @param array $with
      * @return void
      */

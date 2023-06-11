@@ -5,35 +5,30 @@ declare(strict_types=1);
 namespace Modules\Media\Dto;
 
 use Illuminate\Support\Str;
-use Modules\Media\Http\Requests\FolderRequest;
 
 class MediaFolderDto
 {
     /**
      * @param string $name
-     * @param integer $user_id
-     * @param integer $parent_id
+     * @param integer $userId
+     * @param integer $parentId
      */
     public function __construct(
         public readonly string $name,
         public readonly string $slug,
-        public readonly int $user_id,
-        public readonly int $parent_id,
+        public readonly int $userId,
+        public readonly int $parentId,
     ) {
     }
 
-    /**
-     * @param FolderRequest $request
-     * @return self
-     */
-    public static function create(FolderRequest $request): self
+    public static function create(string $name, int $userId, int $parentId): self
     {
 
         return new self(
-            name: $request->name,
-            slug: Str::slug($request->name),
-            user_id: $request->user()->id,
-            parent_id: $request->parent_id
+            name: $name,
+            slug: Str::slug($name),
+            userId: $userId,
+            parentId: $parentId
         );
     }
 }

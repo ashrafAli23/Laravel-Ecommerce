@@ -5,47 +5,30 @@ declare(strict_types=1);
 namespace Modules\Media\Utils;
 
 use Exception;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Mimey\MimeTypes;
+use Modules\Media\Dto\MediaFolderDto;
+use Modules\Media\Repositories\Interfaces\IMediaFileRepository;
+use Modules\Media\Services\MediaFolderService;
 
 class Media
 {
-    // private array $permissions = [];
-    public function __construct()
-    {
+
+    public function __construct(
+        private readonly UploadManager $uploadManager,
+        private readonly IMediaFileRepository $fileRepository,
+        private readonly MediaFolderService $mediaFolderService,
+        private readonly Thumbnail $thumbnail,
+
+    ) {
         // $this->permissions = $this->getConfig('permissions');
     }
-
-    // public function getSizes(): array
-    // {
-    //     $sizes = $this->getConfig('sizes', []);
-
-    //     foreach ($sizes as $name => $size) {
-    //         $size = explode('x', $size);
-
-    //         $settingName = 'media_sizes_' . $name;
-
-    //         $width = setting($settingName . '_width', $size[0]);
-
-    //         $height = setting($settingName . '_height', $size[1]);
-
-    //         if (!$width) {
-    //             $width = 'auto';
-    //         }
-
-    //         if (!$height) {
-    //             $height = 'auto';
-    //         }
-
-    //         $sizes[$name] = $width . 'x' . $height;
-    //     }
-
-    //     return $sizes;
-    // }
 
     // public function getAllImageSizes(?string $url): array
     // {
@@ -80,6 +63,16 @@ class Media
         }
 
         Config::get(['media.media.sizes.' . $name => $width . 'x' . $height]);
+
+        return $this;
+    }
+
+    public function removeSize(string $name): self
+    {
+        // $sizes = $this->getSizes();
+        // Arr::forget($sizes, $name);
+
+        // config(['media.media.sizes' => $sizes]);
 
         return $this;
     }
@@ -238,5 +231,34 @@ class Media
         $mimeTypeDetection = new MimeTypes();
 
         return $mimeTypeDetection->getMimeType(File::extension($url));
+    }
+
+    public function isChunkUploadEnabled(): bool
+    {
+        return $this->getConfig('chunk.enabled') == '1';
+    }
+
+    public function createFolder(string $folderSlug, ?int $parentId = 0)
+    {
+        $folder = $this->mediaFolderService->findOne($folderSlug, $parentId);
+
+        if (!$folder) {
+            $folder = $this->mediaFolderService->create(MediaFolderDto::create($folderSlug, Auth::id(), $parentId));
+        }
+
+        return $folder->id;
+    }
+
+    public function handleTargetFolder(?int $folderId = 0, string $filePath = ''): string
+    {
+        if (strpos($filePath, '/') !== false) {
+            $paths = explode('/', $filePath);
+            array_pop($paths);
+            foreach ($paths as $folder) {
+                $folderId = $this->createFolder($folder, $folderId);
+            }
+        }
+
+        return $folderId;
     }
 }

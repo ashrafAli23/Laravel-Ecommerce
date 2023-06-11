@@ -5,27 +5,37 @@ declare(strict_types=1);
 namespace Modules\Media\Services;
 
 use Modules\Media\Dto\MediaFolderDto;
-use Modules\Media\Repositories\Interfaces\IMediaFoldersRepository;
+use Modules\Media\Repositories\Interfaces\IMediaFolderRepository;
 
 class MediaFolderService
 {
     /**
-     * @param IMediaFoldersRepository $mediaFolders
+     * @param IMediaFolderRepository $mediaFolders
      */
     public function __construct(
-        private readonly IMediaFoldersRepository $mediaFoldersRepository,
+        private readonly IMediaFolderRepository $mediaFolderRepository,
     ) {
     }
 
     public function create(MediaFolderDto $mediaFolderDto)
     {
-        $media = $this->mediaFoldersRepository->createOrUpdate([
-            'name' => $this->mediaFoldersRepository->createName($mediaFolderDto->name, $mediaFolderDto->parent_id),
-            'slug' =>  $this->mediaFoldersRepository->createSlug($mediaFolderDto->slug, $mediaFolderDto->parent_id),
-            'parent_id' => $mediaFolderDto->parent_id,
-            'user_id' => $mediaFolderDto->user_id
+        $media = $this->mediaFolderRepository->createOrUpdate([
+            'name' => $this->mediaFolderRepository->createName($mediaFolderDto->name, $mediaFolderDto->parentId),
+            'slug' =>  $this->mediaFolderRepository->createSlug($mediaFolderDto->slug, $mediaFolderDto->parentId),
+            'parent_id' => $mediaFolderDto->parentId,
+            'user_id' => $mediaFolderDto->userId
         ]);
 
         return $media;
+    }
+
+    public function findOne(string $slug, int $parentId)
+    {
+        $folder = $this->mediaFolderRepository->getFirstBy([
+            'slug' => $slug,
+            'parent_id' => $parentId,
+        ]);
+
+        return $folder;
     }
 }
