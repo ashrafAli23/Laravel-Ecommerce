@@ -11,15 +11,23 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Mimey\MimeTypes;
 use Modules\Media\Dto\MediaFolderDto;
+use Modules\Media\Entities\File as EntitiesFile;
 use Modules\Media\Repositories\Interfaces\IMediaFileRepository;
 use Modules\Media\Services\MediaFolderService;
+use Throwable;
 
 class Media
 {
-
+    /**
+     * @param UploadManager $uploadManager
+     * @param IMediaFileRepository $fileRepository
+     * @param MediaFolderService $mediaFolderService
+     * @param Thumbnail $thumbnail
+     */
     public function __construct(
         private readonly UploadManager $uploadManager,
         private readonly IMediaFileRepository $fileRepository,
@@ -27,19 +35,33 @@ class Media
         private readonly Thumbnail $thumbnail,
 
     ) {
-        // $this->permissions = $this->getConfig('permissions');
     }
 
-    // public function getAllImageSizes(?string $url): array
-    // {
-    //     $images = [];
-    //     foreach ($this->getSizes() as $size) {
-    //         $readableSize = explode('x', $size);
-    //         $images = $this->getImageUrl($url, $readableSize);
-    //     }
+    public function getSizes(): array
+    {
+        $sizes = $this->getConfig('sizes', []);
+        foreach ($sizes as $name => $size) {
+            $size = explode('x', $size);
+            $width = 'auto';
 
-    //     return $images;
-    // }
+            $height = 'auto';
+
+            $sizes[$name] = $width . 'x' . $height;
+        }
+
+        return $sizes;
+    }
+
+    public function getAllImageSizes(?string $url): array
+    {
+        $images = [];
+        foreach ($this->getSizes() as $size) {
+            $readableSize = explode('x', $size);
+            $images = $this->getImageUrl($url, $readableSize);
+        }
+
+        return $images;
+    }
 
     public function getConfig($key = null, $default = null)
     {
@@ -69,10 +91,10 @@ class Media
 
     public function removeSize(string $name): self
     {
-        // $sizes = $this->getSizes();
-        // Arr::forget($sizes, $name);
+        $sizes = $this->getSizes();
+        Arr::forget($sizes, $name);
 
-        // config(['media.media.sizes' => $sizes]);
+        config(['media.media.sizes' => $sizes]);
 
         return $this;
     }
@@ -86,6 +108,11 @@ class Media
         }
 
         return $maxSize;
+    }
+
+    public function imageValidationRule(): string
+    {
+        return 'required|image|mimes:jpg,jpeg,png,webp,gif,bmp';
     }
 
     public function getImageUrl(?string $url, $size = null, bool $relativePath = false, $default = null)
@@ -144,6 +171,33 @@ class Media
         }
 
         return round((float)$size);
+    }
+
+    public function getDefaultImage(bool $relative = false): string
+    {
+        $default = $this->getConfig('default_image');
+
+        if ($relative) {
+            return $default;
+        }
+
+        return $default ? url($default) : $default;
+    }
+
+    public function url(?string $path): string
+    {
+        $path = trim($path);
+
+        if (Str::contains($path, 'https://') || Str::contains($path, 'http://')) {
+            return $path;
+        }
+
+        return Storage::url($path);
+    }
+
+    public function getSize(string $name): ?string
+    {
+        return Arr::get($this->getSizes(), $name);
     }
 
     public function getRealPath(string $url): string
@@ -222,6 +276,216 @@ class Media
         return $result;
     }
 
+    public function uploadFromPath(string $path, int $folderId = 0, ?string $folderSlug = null, ?string $defaultMimetype = null)
+    {
+        if (empty($path)) {
+            return [
+                'error' => true,
+                'message' => "path invalid",
+            ];
+        }
+
+        $mimeType = $this->getMimeType($path);
+
+        if (empty($mimeType)) {
+            $mimeType = $defaultMimetype;
+        }
+
+        $fileName = File::name($path);
+        $fileExtension = File::extension($path);
+        if (empty($fileExtension)) {
+            $mimeTypeDetection = new MimeTypes();
+
+            $fileExtension = $mimeTypeDetection->getExtension($mimeType);
+        }
+
+        $fileUpload = new UploadedFile($path, $fileName . '.' . $fileExtension, $mimeType, null, true);
+
+        return $this->handleUpload($fileUpload, $folderId, $folderSlug);
+    }
+
+    public function deleteFile(EntitiesFile $file): bool
+    {
+        $this->deleteThumbnails($file);
+
+        return Storage::delete($file->url);
+    }
+
+    public function deleteThumbnails(EntitiesFile $file): bool
+    {
+        if (!$file->canGenerateThumbnails()) {
+            return false;
+        }
+
+        $filename = pathinfo($file->url, PATHINFO_FILENAME);
+
+        $files = [];
+        foreach ($this->getSizes() as $size) {
+            $files[] = str_replace($filename, $filename . '-' . $size, $file->url);
+        }
+
+        return Storage::delete($files);
+    }
+
+    public function handleUpload(?UploadedFile $fileUpload, ?int $folderId = 0, ?string $folderSlug = null, bool $skipValidation = false): array
+    {
+        $request = request();
+
+        if ($request->path) {
+            $folderId = $this->handleTargetFolder($folderId, $request->path);
+        }
+
+        if (!$fileUpload) {
+            return [
+                'success' => false,
+                'message' => "can not detect file type",
+            ];
+        }
+
+        $allowedMimeTypes = $this->getConfig('allowed_mime_types');
+
+        if (!$this->isChunkUploadEnabled()) {
+            if (!$skipValidation) {
+                $validator = Validator::make(['uploaded_file' => $fileUpload], [
+                    'uploaded_file' => 'required|mimes:' . $allowedMimeTypes,
+                ]);
+
+                if ($validator->fails()) {
+                    return [
+                        'error' => true,
+                        'message' => $validator->getMessageBag()->first(),
+                    ];
+                }
+            }
+
+            $maxUploadFilesizeAllowed = env('MAX_UPLOAD_FILE_SIZE', $this->getServerConfigMaxUploadFileSize());
+
+            if ($maxUploadFilesizeAllowed && ($fileUpload->getSize() / 1024) / 1024 > (float)$maxUploadFilesizeAllowed) {
+                return [
+                    'error' => true,
+                    'message' => "file too big readable size " . $maxUploadFilesizeAllowed * 1024 * 1024,
+                ];
+            }
+
+            $maxSize = $this->getServerConfigMaxUploadFileSize();
+
+            if ($fileUpload->getSize() / 1024 > (int)$maxSize) {
+                return [
+                    'error' => true,
+                    'message' => "file too big readable size " . $maxSize,
+                ];
+            }
+        }
+
+        try {
+            $file = $this->fileRepository->getModel();
+
+            $fileExtension = $fileUpload->getClientOriginalExtension();
+
+            if (!$skipValidation && !in_array(strtolower($fileExtension), explode(',', $allowedMimeTypes))) {
+                return [
+                    'error' => true,
+                    'message' => "can not detect file type",
+                ];
+            }
+
+            if ($folderId == 0 && !empty($folderSlug)) {
+                $folder = $this->mediaFolderService->findOne(['slug' => $folderSlug]);
+
+                if (!$folder) {
+                    $folder = $this->mediaFolderService->create(MediaFolderDto::create($folderSlug, Auth::id(), 0));
+                }
+
+                $folderId = $folder->id;
+            }
+
+            $file->name = $this->fileRepository->createName(
+                File::name($fileUpload->getClientOriginalName()),
+                $folderId
+            );
+
+            $folderPath = $this->folderRepository->getFullPath($folderId);
+
+            $fileName = $this->fileRepository->createSlug(
+                $file->name,
+                $fileExtension,
+                Storage::path($folderPath ?: '')
+            );
+
+            $filePath = $fileName;
+
+            if ($folderPath) {
+                $filePath = $folderPath . '/' . $filePath;
+            }
+
+            $content = File::get($fileUpload->getRealPath());
+
+            $this->uploadManager->saveFile($filePath, $content, $fileUpload);
+
+            $data = $this->uploadManager->fileDetails($filePath);
+
+            if (!$skipValidation && empty($data['mime_type'])) {
+                return [
+                    'error' => true,
+                    'message' => trans('core/media::media.can_not_detect_file_type'),
+                ];
+            }
+
+            $file->url = $data['url'];
+            $file->size = $data['size'];
+            $file->mime_type = $data['mime_type'];
+            $file->folder_id = $folderId;
+            $file->user_id = Auth::check() ? Auth::id() : 0;
+            $file->options = $request->input('options', []);
+            $file = $this->fileRepository->createOrUpdate($file);
+
+            $this->generateThumbnails($file);
+
+            return [
+                'error' => false,
+                'data' => new FileResource($file),
+            ];
+        } catch (Throwable $exception) {
+            return [
+                'error' => true,
+                'message' => $exception->getMessage(),
+            ];
+        }
+    }
+
+    public function canGenerateThumbnails(?string $mimeType): bool
+    {
+        if (!$this->getConfig('generate_thumbnails_enabled')) {
+            return false;
+        }
+
+        if (!$mimeType) {
+            return false;
+        }
+
+        return $this->isImage($mimeType) && !in_array($mimeType, ['image/svg+xml', 'image/x-icon']);
+    }
+
+    public function generateThumbnails(EntitiesFile $file): bool
+    {
+        if (!$file->canGenerateThumbnails()) {
+            return false;
+        }
+
+        foreach ($this->getSizes() as $size) {
+            $readableSize = explode('x', $size);
+
+            $this->thumbnail
+                ->setImage($this->getRealPath($file->url))
+                ->setSize($readableSize[0], $readableSize[1])
+                ->setDestinationPath(File::dirname($file->url))
+                ->setFileName(File::name($file->url) . '-' . $size . '.' . File::extension($file->url))
+                ->save();
+        }
+
+        return true;
+    }
+
     public function getMimeType(string $url)
     {
         if (!isset($url)) {
@@ -233,6 +497,16 @@ class Media
         return $mimeTypeDetection->getMimeType(File::extension($url));
     }
 
+    private function getUploadPath(): string
+    {
+        return is_link(public_path('storage')) ? storage_path('app/public') : public_path('storage');
+    }
+
+    private function getUploadURL(): string
+    {
+        return str_replace('/index.php', '', $this->getConfig('default_upload_url'));
+    }
+
     public function isChunkUploadEnabled(): bool
     {
         return $this->getConfig('chunk.enabled') == '1';
@@ -240,7 +514,7 @@ class Media
 
     public function createFolder(string $folderSlug, ?int $parentId = 0)
     {
-        $folder = $this->mediaFolderService->findOne($folderSlug, $parentId);
+        $folder = $this->mediaFolderService->findOne(['slug' => $folderSlug, 'parent_id' => $parentId]);
 
         if (!$folder) {
             $folder = $this->mediaFolderService->create(MediaFolderDto::create($folderSlug, Auth::id(), $parentId));

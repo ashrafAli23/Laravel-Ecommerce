@@ -6,21 +6,19 @@ namespace Modules\Media\Utils;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Intervention\Image\ImageManager;
 
 class Thumbnail
 {
-    /**
-     * @var ImageManager
-     */
-    private $imageManager;
+    private ImageManager $imageManager;
 
     private string $imagePath;
 
     private float $thumbRate;
 
-    private string|float $thumbWidth;
+    private string|int $thumbWidth;
 
-    private string|float $thumbHeight;
+    private string|int $thumbHeight;
 
     private string $destinationPath;
 
@@ -34,7 +32,7 @@ class Thumbnail
 
     private UploadManager $uploadManager;
 
-    public function __construct(UploadManager $uploadManager/*, ImageManager $imageManager*/)
+    public function __construct(UploadManager $uploadManager, ImageManager $imageManager)
     {
         $this->thumbRate = 0.75;
         $this->xCoordinate = null;
@@ -46,7 +44,7 @@ class Thumbnail
             $driver = 'imagick';
         }
 
-        // $this->imageManager = $imageManager->configure(compact('driver'));
+        $this->imageManager = $imageManager->configure(compact('driver'));
         $this->uploadManager = $uploadManager;
     }
 
@@ -61,7 +59,7 @@ class Thumbnail
         return $this->imagePath;
     }
 
-    public function setSize(string|float $width, string|float $height = 'auto'): Thumbnail
+    public function setSize(string|int $width, string|int $height = 'auto'): Thumbnail
     {
         $this->thumbWidth = $width;
         $this->thumbHeight = $height;
@@ -69,13 +67,13 @@ class Thumbnail
         if (!$height || $height == 'auto') {
             $this->thumbHeight = 0;
         } elseif ($height == 'rate') {
-            $this->thumbHeight = (float)($this->thumbWidth * $this->thumbRate);
+            $this->thumbHeight = (int)($this->thumbWidth * $this->thumbRate);
         }
 
         if (!$width || $width == 'auto') {
             $this->thumbWidth = 0;
         } elseif ($width == 'rate') {
-            $this->thumbWidth = (float)($this->thumbHeight * $this->thumbRate);
+            $this->thumbWidth = (int)($this->thumbHeight * $this->thumbRate);
         }
 
         return $this;

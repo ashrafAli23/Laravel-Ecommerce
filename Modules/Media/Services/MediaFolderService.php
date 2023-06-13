@@ -29,12 +29,9 @@ class MediaFolderService
         return $media;
     }
 
-    public function findOne(string $slug, int $parentId)
+    public function findOne(array $conditions)
     {
-        $folder = $this->mediaFolderRepository->getFirstBy([
-            'slug' => $slug,
-            'parent_id' => $parentId,
-        ]);
+        $folder = $this->mediaFolderRepository->getFirstBy($conditions);
 
         return $folder;
     }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Media\Database\factories\FileFactory;
+use Modules\Media\Facades\MediaFacade;
 
 class File extends Model
 {
@@ -36,6 +37,11 @@ class File extends Model
     public function folder(): BelongsTo
     {
         return $this->belongsTo(Folder::class, 'folder_id');
+    }
+
+    public function canGenerateThumbnails(): bool
+    {
+        return MediaFacade::canGenerateThumbnails($this->mime_type);
     }
 
     protected static function newFactory()
