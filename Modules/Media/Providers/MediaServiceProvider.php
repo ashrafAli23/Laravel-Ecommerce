@@ -66,8 +66,25 @@ class MediaServiceProvider extends ServiceProvider
         $this->publishes([
             module_path($this->moduleName, 'Config/config.php') => config_path($this->moduleNameLower . '.php'),
         ], 'config');
+
+        $this->publishes([
+            module_path($this->moduleName, 'Config/media.php') => config_path($this->moduleNameLower . '.php'),
+        ], 'media');
+
+        $this->publishes([
+            module_path($this->moduleName, 'Config/permissions.php') => config_path($this->moduleNameLower . '.php'),
+        ], 'permissions');
+
         $this->mergeConfigFrom(
             module_path($this->moduleName, 'Config/config.php'),
+            $this->moduleNameLower
+        );
+        $this->mergeConfigFrom(
+            module_path($this->moduleName, 'Config/media.php'),
+            $this->moduleNameLower
+        );
+        $this->mergeConfigFrom(
+            module_path($this->moduleName, 'Config/permissions.php'),
             $this->moduleNameLower
         );
     }

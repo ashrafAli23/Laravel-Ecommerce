@@ -17,7 +17,9 @@ use Mimey\MimeTypes;
 use Modules\Media\Dto\MediaFolderDto;
 use Modules\Media\Entities\File as EntitiesFile;
 use Modules\Media\Repositories\Interfaces\IMediaFileRepository;
+use Modules\Media\Repositories\Interfaces\IMediaFolderRepository;
 use Modules\Media\Services\MediaFolderService;
+use Modules\Media\Transformers\FileTransformer;
 use Throwable;
 
 class Media
@@ -25,12 +27,14 @@ class Media
     /**
      * @param UploadManager $uploadManager
      * @param IMediaFileRepository $fileRepository
+     * @param IMediaFolderRepository $mediaFolderRepository
      * @param MediaFolderService $mediaFolderService
      * @param Thumbnail $thumbnail
      */
     public function __construct(
         private readonly UploadManager $uploadManager,
         private readonly IMediaFileRepository $fileRepository,
+        private readonly IMediaFolderRepository $mediaFolderRepository,
         private readonly MediaFolderService $mediaFolderService,
         private readonly Thumbnail $thumbnail,
 
@@ -404,7 +408,7 @@ class Media
                 $folderId
             );
 
-            $folderPath = $this->folderRepository->getFullPath($folderId);
+            $folderPath = $this->mediaFolderRepository->getFullPath($folderId);
 
             $fileName = $this->fileRepository->createSlug(
                 $file->name,
@@ -427,7 +431,7 @@ class Media
             if (!$skipValidation && empty($data['mime_type'])) {
                 return [
                     'error' => true,
-                    'message' => trans('core/media::media.can_not_detect_file_type'),
+                    'message' => "can not detect file type",
                 ];
             }
 
@@ -436,14 +440,14 @@ class Media
             $file->mime_type = $data['mime_type'];
             $file->folder_id = $folderId;
             $file->user_id = Auth::check() ? Auth::id() : 0;
-            $file->options = $request->input('options', []);
+            $file->options = $request->options;
             $file = $this->fileRepository->createOrUpdate($file);
 
             $this->generateThumbnails($file);
 
             return [
                 'error' => false,
-                'data' => new FileResource($file),
+                'data' => new FileTransformer($file),
             ];
         } catch (Throwable $exception) {
             return [

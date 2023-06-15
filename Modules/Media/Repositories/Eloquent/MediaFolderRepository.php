@@ -73,9 +73,7 @@ class MediaFolderRepository extends BaseRepository implements IMediaFolderReposi
         return $count > 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     public function getBreadcrumbs($parentId, $breadcrumbs = [])
     {
         if (!$parentId) {
@@ -98,9 +96,6 @@ class MediaFolderRepository extends BaseRepository implements IMediaFolderReposi
         ]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getTrashed($parentId, array $params = [])
     {
         $params = array_merge([
