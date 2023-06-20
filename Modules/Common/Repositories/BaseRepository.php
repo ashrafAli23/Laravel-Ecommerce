@@ -410,6 +410,8 @@ abstract class BaseRepository implements IRepository
         if (!empty($item)) {
             $item->forceDelete();
         }
+
+        $this->resetModel();
     }
 
 

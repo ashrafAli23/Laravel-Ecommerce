@@ -44,6 +44,16 @@ class File extends Model
         return MediaFacade::canGenerateThumbnails($this->mime_type);
     }
 
+    protected static function boot()
+    {
+        parent::boot();
+        static::deleting(function (File $file) {
+            if ($file->isForceDeleting()) {
+                MediaFacade::deleteFile($file);
+            }
+        });
+    }
+
     protected static function newFactory()
     {
         return FileFactory::new();

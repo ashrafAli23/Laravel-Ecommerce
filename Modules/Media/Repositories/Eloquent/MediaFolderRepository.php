@@ -32,18 +32,19 @@ class MediaFolderRepository extends BaseRepository implements IMediaFolderReposi
         return $this->advancedGet($params);
     }
 
-    public function createSlug(string $slug, int $parentId): string
+    public function createSlug(string $slug, ?int $parentId): string
     {
+        $newName = $slug;
         $index = 1;
-        $baseSlug = $slug;
-        while ($this->checkIfExists('slug', $slug, $parentId)) {
-            $name = $baseSlug . '-' . $index++;
+        $baseSlug = $newName;
+        while ($this->checkIfExists('slug', $newName, $parentId)) {
+            $newName = $baseSlug . '-' . $index++;
         }
 
-        return $name;
+        return $newName;
     }
 
-    public function createName(string $name, int $parentId): string
+    public function createName(string $name, ?int $parentId): string
     {
         $newName = $name;
         $index = 1;
@@ -61,9 +62,9 @@ class MediaFolderRepository extends BaseRepository implements IMediaFolderReposi
      * @param int $parentId
      * @return bool
      */
-    private function checkIfExists(string $key, string $value, int $parentId): bool
+    private function checkIfExists(string $key, string $value, ?int $parentId): bool
     {
-        $count = $this->model->where($key, $value)->where('parent_id', $parentId)->withTrashed();
+        $count = $this->model->where('parent_id', "=", $parentId)->where($key, "=", $value)->withTrashed();
 
         /**
          * @var Builder $count
@@ -168,7 +169,7 @@ class MediaFolderRepository extends BaseRepository implements IMediaFolderReposi
     }
 
 
-    public function getFullPath(int $folderId, string $path = null): string
+    public function getFullPath(?int $folderId, string $path = null): ?string
     {
         if (!$folderId) {
             return $path;

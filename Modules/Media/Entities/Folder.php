@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Media\Database\factories\FolderFactory;
+use Modules\Media\Facades\MediaFacade;
 
 class Folder extends Model
 {
@@ -34,6 +35,31 @@ class Folder extends Model
     public function parentFolder(): HasOne
     {
         return $this->hasOne(Folder::class, 'parent_id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::deleting(function (Folder $folder) {
+            if ($folder->isForceDeleting()) {
+                $files = File::where('folder_id', $folder->id)->onlyTrashed()->get();
+
+                foreach ($files as $file) {
+                    MediaFacade::deleteFile($file);
+                    $file->forceDelete();
+                }
+            } else {
+                $files = File::where('folder_id', $folder->id)->withTrashed()->get();
+
+                foreach ($files as $file) {
+                    $file->delete();
+                }
+            }
+        });
+
+        static::restoring(function ($folder) {
+            File::where('folder_id', $folder->id)->restore();
+        });
     }
 
     protected static function newFactory()

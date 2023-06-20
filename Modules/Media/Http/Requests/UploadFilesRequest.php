@@ -4,7 +4,7 @@ namespace Modules\Media\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class FolderRequest extends FormRequest
+class UploadFilesRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -14,8 +14,8 @@ class FolderRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ["required", "regex:/^[\pL\s\ \_\-0-9]+$/u", "string"],
-            'parent_id' => ['nullable', 'numeric', 'exists:folders,id'],
+            'file' => ['required', 'file'],
+            'folder_id' => ['required', 'numeric', 'exists:folders,id']
         ];
     }
 

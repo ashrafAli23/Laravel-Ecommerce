@@ -17,11 +17,11 @@ class MediaFolderDto
         public readonly string $name,
         public readonly string $slug,
         public readonly int $userId,
-        public readonly int $parentId,
+        public readonly ?int $parentId,
     ) {
     }
 
-    public static function create(string $name, int $userId, int $parentId): self
+    public static function create(string $name, int $userId, ?int $parentId): self
     {
 
         return new self(

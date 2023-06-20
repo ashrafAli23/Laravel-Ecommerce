@@ -10,7 +10,7 @@ class UploadFileDto
 {
     public function __construct(
         public readonly UploadedFile|array $file,
-        public readonly int $folderId,
+        public readonly ?int $folderId,
     ) {
     }
 
@@ -19,7 +19,7 @@ class UploadFileDto
      * @param integer $folderId
      * @return self
      */
-    public static function create(UploadedFile|array $file, int $folderId): self
+    public static function create(UploadedFile|array $file, ?int $folderId): self
     {
         return new self($file, $folderId);
     }

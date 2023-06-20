@@ -15,10 +15,10 @@ return new class extends Migration
     {
         Schema::create('folders', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
-            $table->string('slug')->nullable();
-            $table->foreignId('user_id')->index()->constrained('users')->nullOnDelete();
-            $table->foreignId('parent_id')->index()->constrained('folders')->nullOnDelete();
+            $table->string('name');
+            $table->string('slug');
+            $table->foreignId('user_id')->index()->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('parent_id')->index()->nullable()->constrained('folders')->nullOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

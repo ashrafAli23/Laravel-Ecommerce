@@ -25,7 +25,6 @@ class MediaFolderService
             'parent_id' => $mediaFolderDto->parentId,
             'user_id' => $mediaFolderDto->userId
         ]);
-
         return $media;
     }
 

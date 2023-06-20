@@ -75,7 +75,6 @@ class Thumbnail
         } elseif ($width == 'rate') {
             $this->thumbWidth = (int)($this->thumbHeight * $this->thumbRate);
         }
-
         return $this;
     }
 
@@ -118,7 +117,6 @@ class Thumbnail
     public function save(string $type = 'fit')
     {
         $fileName = pathinfo($this->imagePath, PATHINFO_BASENAME);
-
         if ($this->fileName) {
             $fileName = $this->fileName;
         }
@@ -139,7 +137,6 @@ class Thumbnail
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 });
-
                 break;
 
             case 'height':
@@ -152,7 +149,6 @@ class Thumbnail
 
             case 'resize':
                 $thumbImage->resize($this->thumbWidth, $this->thumbHeight);
-
                 break;
 
             case 'crop':
@@ -170,7 +166,6 @@ class Thumbnail
 
                 break;
         }
-
         try {
             $this->uploadManager->saveFile($destinationPath, $thumbImage->stream()->__toString());
         } catch (Exception $exception) {

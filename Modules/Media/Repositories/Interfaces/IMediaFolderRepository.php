@@ -62,7 +62,7 @@ interface IMediaFolderRepository extends IRepository
      * @param string $path
      * @return string
      */
-    public function getFullPath(int $folderId, string $path = ''): string;
+    public function getFullPath(int $folderId, string $path = ''): ?string;
 
     /**
      * @param int $folderId

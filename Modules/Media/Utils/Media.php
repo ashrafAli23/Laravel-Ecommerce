@@ -46,15 +46,29 @@ class Media
         $sizes = $this->getConfig('sizes', []);
         foreach ($sizes as $name => $size) {
             $size = explode('x', $size);
-            $width = 'auto';
-
-            $height = 'auto';
+            $width = $size[0];
+            $height = $size[1];
 
             $sizes[$name] = $width . 'x' . $height;
         }
 
         return $sizes;
     }
+
+
+    public function humanFilesize(int $bytes, int $precision = 2): string
+    {
+        $units = ['B', 'kB', 'MB', 'GB', 'TB'];
+
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+
+        $bytes /= pow(1024, $pow);
+
+        return number_format($bytes, $precision, ',', '.') . ' ' . $units[$pow];
+    }
+
 
     public function getAllImageSizes(?string $url): array
     {
@@ -69,8 +83,7 @@ class Media
 
     public function getConfig($key = null, $default = null)
     {
-        $configs = Config::get('media.media');
-
+        $configs = Config::get('media');
         if (!$key) {
             return $configs;
         }
@@ -191,7 +204,6 @@ class Media
     public function url(?string $path): string
     {
         $path = trim($path);
-
         if (Str::contains($path, 'https://') || Str::contains($path, 'http://')) {
             return $path;
         }
@@ -228,22 +240,11 @@ class Media
     public function uploadFromUrl(string $url, int $folderId = 0, ?string $folderSlug = null, ?string $defaultMimetype = null)
     {
         if (empty($url)) {
-            return [
-                'error' => true,
-                'message' => "Invalid url",
-            ];
+            throw new Exception("Invalid url", 400);
         }
 
         $info = pathinfo($url);
-
-        try {
-            $contents = file_get_contents($url);
-        } catch (Exception $exception) {
-            return [
-                'error' => true,
-                'message' => $exception->getMessage(),
-            ];
-        }
+        $contents = file_get_contents($url);
 
         if (empty($contents)) {
             return null;
@@ -331,19 +332,15 @@ class Media
         return Storage::delete($files);
     }
 
-    public function handleUpload(?UploadedFile $fileUpload, ?int $folderId = 0, ?string $folderSlug = null, bool $skipValidation = false): array
+    public function handleUpload(?UploadedFile $fileUpload, ?int $folderId, ?string $folderSlug = null, bool $skipValidation = false)
     {
         $request = request();
-
         if ($request->path) {
             $folderId = $this->handleTargetFolder($folderId, $request->path);
         }
 
         if (!$fileUpload) {
-            return [
-                'success' => false,
-                'message' => "can not detect file type",
-            ];
+            throw new Exception("can not detect file type");
         }
 
         $allowedMimeTypes = $this->getConfig('allowed_mime_types');
@@ -355,106 +352,81 @@ class Media
                 ]);
 
                 if ($validator->fails()) {
-                    return [
-                        'error' => true,
-                        'message' => $validator->getMessageBag()->first(),
-                    ];
+                    throw new Exception($validator->getMessageBag()->first());
                 }
             }
 
             $maxUploadFilesizeAllowed = env('MAX_UPLOAD_FILE_SIZE', $this->getServerConfigMaxUploadFileSize());
 
             if ($maxUploadFilesizeAllowed && ($fileUpload->getSize() / 1024) / 1024 > (float)$maxUploadFilesizeAllowed) {
-                return [
-                    'error' => true,
-                    'message' => "file too big readable size " . $maxUploadFilesizeAllowed * 1024 * 1024,
-                ];
+                throw new Exception("file too big readable size " . $maxUploadFilesizeAllowed * 1024 * 1024);
             }
 
             $maxSize = $this->getServerConfigMaxUploadFileSize();
-
             if ($fileUpload->getSize() / 1024 > (int)$maxSize) {
-                return [
-                    'error' => true,
-                    'message' => "file too big readable size " . $maxSize,
-                ];
+                throw new Exception("file too big readable size " . $maxSize);
             }
         }
 
-        try {
-            $file = $this->fileRepository->getModel();
 
-            $fileExtension = $fileUpload->getClientOriginalExtension();
+        $file = $this->fileRepository->getModel();
 
-            if (!$skipValidation && !in_array(strtolower($fileExtension), explode(',', $allowedMimeTypes))) {
-                return [
-                    'error' => true,
-                    'message' => "can not detect file type",
-                ];
-            }
+        $fileExtension = $fileUpload->getClientOriginalExtension();
 
-            if ($folderId == 0 && !empty($folderSlug)) {
-                $folder = $this->mediaFolderService->findOne(['slug' => $folderSlug]);
-
-                if (!$folder) {
-                    $folder = $this->mediaFolderService->create(MediaFolderDto::create($folderSlug, Auth::id(), 0));
-                }
-
-                $folderId = $folder->id;
-            }
-
-            $file->name = $this->fileRepository->createName(
-                File::name($fileUpload->getClientOriginalName()),
-                $folderId
-            );
-
-            $folderPath = $this->mediaFolderRepository->getFullPath($folderId);
-
-            $fileName = $this->fileRepository->createSlug(
-                $file->name,
-                $fileExtension,
-                Storage::path($folderPath ?: '')
-            );
-
-            $filePath = $fileName;
-
-            if ($folderPath) {
-                $filePath = $folderPath . '/' . $filePath;
-            }
-
-            $content = File::get($fileUpload->getRealPath());
-
-            $this->uploadManager->saveFile($filePath, $content, $fileUpload);
-
-            $data = $this->uploadManager->fileDetails($filePath);
-
-            if (!$skipValidation && empty($data['mime_type'])) {
-                return [
-                    'error' => true,
-                    'message' => "can not detect file type",
-                ];
-            }
-
-            $file->url = $data['url'];
-            $file->size = $data['size'];
-            $file->mime_type = $data['mime_type'];
-            $file->folder_id = $folderId;
-            $file->user_id = Auth::check() ? Auth::id() : 0;
-            $file->options = $request->options;
-            $file = $this->fileRepository->createOrUpdate($file);
-
-            $this->generateThumbnails($file);
-
-            return [
-                'error' => false,
-                'data' => new FileTransformer($file),
-            ];
-        } catch (Throwable $exception) {
-            return [
-                'error' => true,
-                'message' => $exception->getMessage(),
-            ];
+        if (!$skipValidation && !in_array(strtolower($fileExtension), explode(',', $allowedMimeTypes))) {
+            throw new Exception("can not detect file type");
         }
+
+        if ($folderId == 0 && !empty($folderSlug)) {
+            $folder = $this->mediaFolderService->findOne(['slug' => $folderSlug]);
+
+            if (!$folder) {
+                $folder = $this->mediaFolderService->create(MediaFolderDto::create($folderSlug, Auth::id(), null));
+            }
+
+            $folderId = $folder->id;
+        }
+
+        $file->name = $this->fileRepository->createName(
+            File::name($fileUpload->getClientOriginalName()),
+            $folderId
+        );
+
+        $folderPath = $this->mediaFolderRepository->getFullPath($folderId);
+
+
+        $fileName = $this->fileRepository->createSlug(
+            $file->name,
+            $fileExtension,
+            Storage::path($folderPath ?: '')
+        );
+
+        $filePath = $fileName;
+
+        if ($folderPath) {
+            $filePath = $folderPath . '/' . $filePath;
+        }
+
+
+        $content = File::get($fileUpload->getRealPath());
+
+        $this->uploadManager->saveFile($filePath, $content, $fileUpload);
+
+        $data = $this->uploadManager->fileDetails($filePath);
+
+        if (!$skipValidation && empty($data['mime_type'])) {
+            throw new Exception("can not detect file type");
+        }
+
+        $file->url = $data['url'];
+        $file->size = $data['size'];
+        $file->mime_type = $data['mime_type'];
+        $file->folder_id = $folderId;
+        $file->user_id = Auth::check() ? Auth::id() : 0;
+        $file->options = $request->options;
+        $file = $this->fileRepository->createOrUpdate($file);
+        $this->generateThumbnails($file);
+        return $file;
     }
 
     public function canGenerateThumbnails(?string $mimeType): bool
@@ -486,6 +458,7 @@ class Media
                 ->setFileName(File::name($file->url) . '-' . $size . '.' . File::extension($file->url))
                 ->save();
         }
+
 
         return true;
     }
