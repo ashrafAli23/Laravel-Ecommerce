@@ -50,4 +50,16 @@ class MediaFileRepository extends BaseRepository implements IMediaFileRepository
 
         return $slug . '.' . $extension;
     }
+
+    public function emptyTrash(): bool
+    {
+        $files = $this->model->onlyTrashed();
+        $files = $files->get();
+
+        foreach ($files as $file) {
+            $file->forceDelete();
+        }
+
+        return true;
+    }
 }

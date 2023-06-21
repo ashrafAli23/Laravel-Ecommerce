@@ -204,14 +204,8 @@ class MediaFolderRepository extends BaseRepository implements IMediaFolderReposi
     {
         $folders = $this->model->onlyTrashed();
 
-        /**
-         * @var Builder $folders
-         */
         $folders = $folders->get();
         foreach ($folders as $folder) {
-            /**
-             * @var \Eloquent $folder
-             */
             $folder->forceDelete();
         }
 

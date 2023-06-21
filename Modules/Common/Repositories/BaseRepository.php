@@ -423,6 +423,8 @@ abstract class BaseRepository implements IRepository
         if (!empty($item)) {
             $item->restore();
         }
+
+        $this->resetModel();
     }
 
 

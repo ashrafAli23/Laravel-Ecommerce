@@ -22,6 +22,7 @@ Route::middleware('auth:api')->get('/media', function (Request $request) {
 
 Route::prefix('media')->middleware(['auth:sanctum'])->group(function () {
     Route::post('/action', [MediaController::class, 'action']);
+    Route::post('/download', [MediaController::class, 'download']);
     Route::post('/files/uploads', [FileController::class, 'upload']);
     Route::post('/files/uploads-url', [FileController::class, 'uploadUrl']);
     Route::post('/folders/create', [FolderController::class, 'store']);

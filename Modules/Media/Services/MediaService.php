@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Modules\Media\Services;
 
 use Exception;
+use Illuminate\Support\Facades\File;
 use Modules\Media\Dto\ActionDto;
+use Modules\Media\Facades\MediaFacade;
 use Modules\Media\Repositories\Interfaces\IMediaFileRepository;
 use Modules\Media\Repositories\Interfaces\IMediaFolderRepository;
 
@@ -32,32 +34,17 @@ class MediaService
                 $response = "trash success";
 
                 break;
-
-                // case 'restore':
-                //     $error = false;
-                //     foreach ($request->input('selected') as $item) {
-                //         $id = $item['id'];
-                //         if ($item['is_folder'] == 'false') {
-                //             try {
-                //                 $this->fileRepository->restoreBy(['id' => $id]);
-                //             } catch (Exception $exception) {
-                //                 info($exception->getMessage());
-                //                 $error = true;
-                //             }
-                //         } else {
-                //             $this->folderRepository->restoreFolder($id);
-                //         }
-                //     }
-
-                //     if ($error) {
-                //         $response = RvMedia::responseError(trans('core/media::media.restore_error'));
-
-                //         break;
-                //     }
-
-                //     $response = RvMedia::responseSuccess([], trans('core/media::media.restore_success'));
-
-                //     break;
+            case 'restore':
+                foreach ($actionDto->listIds as $key) {
+                    $id = $key['id'];
+                    if (!$key['is_folder']) {
+                        $this->mediaFileRepository->restoreBy(['id' => $id]);
+                    } else {
+                        $this->mediaFolderRepository->restoreFolder($id);
+                    }
+                }
+                $response = "restore success";
+                break;
 
                 // case 'make_copy':
                 //     foreach ($request->input('selected', []) as $item) {
@@ -206,44 +193,115 @@ class MediaService
 
                 //     break;
 
-                // case 'rename':
-                //     foreach ($actionDto->listIds as $id) {
-                //         if (!$item['id'] || !$item['name']) {
-                //             continue;
-                //         }
+            case 'rename':
+                foreach ($actionDto->listIds as $key) {
+                    if (!$key['id'] || !$key['value']) {
+                        continue;
+                    }
+                    if (!$key['is_folder']) {
+                        $file = $this->mediaFileRepository->getFirstBy(['id' => $key['id']]);
 
-                //         $id = $item['id'];
-                //         if ($item['is_folder'] == 'false') {
-                //             $file = $this->fileRepository->getFirstBy(['id' => $id]);
+                        if (!empty($file)) {
+                            $file->name = $this->mediaFileRepository->createName($key['value'], $file->folder_id);
+                            $this->mediaFileRepository->createOrUpdate($file);
+                        }
+                    } else {
+                        $folder = $this->mediaFolderRepository->getFirstBy(['id' => $key['id']]);
 
-                //             if (!empty($file)) {
-                //                 $file->name = $this->fileRepository->createName($item['name'], $file->folder_id);
-                //                 $this->fileRepository->createOrUpdate($file);
-                //             }
-                //         } else {
-                //             $name = $item['name'];
-                //             $folder = $this->folderRepository->getFirstBy(['id' => $id]);
+                        if (!empty($folder)) {
+                            $folder->name = $this->mediaFolderRepository->createName($key['value'], $folder->parent_id);
+                            $this->mediaFolderRepository->createOrUpdate($folder);
+                        }
+                    }
+                }
 
-                //             if (!empty($folder)) {
-                //                 $folder->name = $this->folderRepository->createName($name, $folder->parent_id);
-                //                 $this->folderRepository->createOrUpdate($folder);
-                //             }
-                //         }
-                //     }
+                $response = "rename success";
+                break;
+            case 'empty_trash':
+                $this->mediaFolderRepository->emptyTrash();
+                $this->mediaFileRepository->emptyTrash();
 
-                //     $response = RvMedia::responseSuccess([], trans('core/media::media.rename_success'));
+                $response = "empty trash success";
 
-                //     break;
-
-                // case 'empty_trash':
-                //     $this->folderRepository->emptyTrash();
-                //     $this->fileRepository->emptyTrash();
-
-                //     $response = RvMedia::responseSuccess([], trans('core/media::media.empty_trash_success'));
-
-                //     break;
+                break;
         }
 
         return $response;
+    }
+
+    public function download(ActionDto $actionDto)
+    {
+        $items = $actionDto->listIds;
+        if (count($items) == 1 && !$items['0']['is_folder']) {
+            $file = $this->mediaFileRepository->getFirstByWithTrash(['id' => $items[0]['id']]);
+            if (!empty($file) && $file->type != 'video') {
+                $filePath = MediaFacade::getRealPath($file->url);
+                if (!MediaFacade::isUsingCloud()) {
+                    if (!File::exists($filePath)) {
+                        return throw new Exception("File not exists", 404);
+                    }
+
+                    return response()->download($filePath);
+                }
+
+                return response()->make(file_get_contents(str_replace('https://', 'http://', $filePath)), 200, [
+                    'Content-type' => $file->mime_type,
+                    'Content-Disposition' => 'attachment; filename="' . $file->name . '.' . File::extension($file->url) . '"',
+                ]);
+            }
+        }
+        // else {
+        //     $fileName = RvMedia::getRealPath('download-' . Carbon::now()->format('Y-m-d-h-i-s') . '.zip');
+        //     $zip = new Zipper();
+        //     $zip->make($fileName);
+        //     foreach ($items as $item) {
+        //         $id = $item['id'];
+        //         if ($item['is_folder'] == 'false') {
+        //             $file = $this->fileRepository->getFirstByWithTrash(['id' => $id]);
+        //             if (!empty($file) && $file->type != 'video') {
+        //                 $filePath = RvMedia::getRealPath($file->url);
+        //                 if (!RvMedia::isUsingCloud()) {
+        //                     if (File::exists($filePath)) {
+        //                         $zip->add($filePath);
+        //                     }
+        //                 } else {
+        //                     $zip->addString(
+        //                         File::basename($file),
+        //                         file_get_contents(str_replace('https://', 'http://', $filePath))
+        //                     );
+        //                 }
+        //             }
+        //         } else {
+        //             $folder = $this->folderRepository->getFirstByWithTrash(['id' => $id]);
+        //             if (!empty($folder)) {
+        //                 if (!RvMedia::isUsingCloud()) {
+        //                     $zip->add(RvMedia::getRealPath($this->folderRepository->getFullPath($folder->id)));
+        //                 } else {
+        //                     $allFiles = Storage::allFiles($this->folderRepository->getFullPath($folder->id));
+        //                     foreach ($allFiles as $file) {
+        //                         $zip->addString(
+        //                             File::basename($file),
+        //                             file_get_contents(str_replace('https://', 'http://', RvMedia::getRealPath($file)))
+        //                         );
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+
+        //     if (version_compare(phpversion(), '8.0') >= 0) {
+        //         $zip = null;
+        //     } else {
+        //         $zip->close();
+        //     }
+
+        //     if (File::exists($fileName)) {
+        //         return response()->download($fileName)->deleteFileAfterSend();
+        //     }
+
+        //     return RvMedia::responseError(trans('core/media::media.download_file_error'));
+        // }
+
+        throw new Exception("Can not download file", 500);
     }
 }

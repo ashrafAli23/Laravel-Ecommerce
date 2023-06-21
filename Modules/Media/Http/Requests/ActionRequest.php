@@ -18,15 +18,16 @@ class ActionRequest extends FormRequest
             'selected' => ['required', 'array', 'min:1'],
             'selected.*.id' => ['required', 'numeric'],
             'selected.*.is_folder' => ['required', 'boolean'],
-            'selected.*.value' => ['nullable', 'string'],
-            'action' => ['required', 'string', Rule::in(['rename', 'trash', 'delete'])]
+            'selected.*.value' => ['required_if:action,rename', 'string'],
+            'action' => ['required', 'string', Rule::in(['rename', 'download', 'trash', 'delete', 'restore', 'empty_trash'])]
         ];
     }
 
     public function messages()
     {
         return [
-            'action.in' => "The status must be one of the following: rename, trash, delete.",
+            'action.in' => "The status must be one of the following: rename, trash, delete, restore, empty_trash, download.",
+            'selected.*.value.required_if' => 'Value field is required'
         ];
     }
 
