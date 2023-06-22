@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Modules\Media\Services;
 
 use Exception;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Modules\Media\Dto\ActionDto;
 use Modules\Media\Facades\MediaFacade;
 use Modules\Media\Repositories\Interfaces\IMediaFileRepository;
 use Modules\Media\Repositories\Interfaces\IMediaFolderRepository;
+use Modules\Media\Utils\Zip\Zip;
 
 class MediaService
 {
@@ -249,59 +252,61 @@ class MediaService
                     'Content-Disposition' => 'attachment; filename="' . $file->name . '.' . File::extension($file->url) . '"',
                 ]);
             }
+        } else {
+            $fileName = MediaFacade::getRealPath('download-' . Carbon::now()->format('Y-m-d-h-i-s') . '.zip');
+            $zip = new Zip();
+            $zip->make($fileName);
+            foreach ($items as $item) {
+                $id = $item['id'];
+                if (!$item['is_folder']) {
+                    $file = $this->mediaFileRepository->getFirstByWithTrash(['id' => $id]);
+                    if (!empty($file) && $file->type != 'video') {
+                        $filePath = MediaFacade::getRealPath($file->url);
+                        if (!MediaFacade::isUsingCloud()) {
+                            if (File::exists($filePath)) {
+                                $zip->add($filePath);
+                            }
+                        } else {
+                            $zip->addString(
+                                File::basename($file),
+                                file_get_contents(str_replace('https://', 'http://', $filePath))
+                            );
+                        }
+                    }
+                } else {
+                    $folder = $this->mediaFolderRepository->getFirstByWithTrash(['id' => $id]);
+                    if (!empty($folder)) {
+                        if (!MediaFacade::isUsingCloud()) {
+                            $zip->add(MediaFacade::getRealPath($this->mediaFolderRepository->getFullPath($folder->id)));
+                        } else {
+                            $allFiles = Storage::allFiles($this->mediaFolderRepository->getFullPath($folder->id));
+                            foreach ($allFiles as $file) {
+                                $zip->addString(
+                                    File::basename($file),
+                                    file_get_contents(str_replace('https://', 'http://', MediaFacade::getRealPath($file)))
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (version_compare(phpversion(), '8.1') >= 0) {
+                $zip = null;
+            } else {
+                $zip->close();
+            }
+            if (File::exists($fileName)) {
+                return response()->download($fileName)->deleteFileAfterSend();
+            }
+
+            throw new Exception("download file error", 500);
         }
-        // else {
-        //     $fileName = RvMedia::getRealPath('download-' . Carbon::now()->format('Y-m-d-h-i-s') . '.zip');
-        //     $zip = new Zipper();
-        //     $zip->make($fileName);
-        //     foreach ($items as $item) {
-        //         $id = $item['id'];
-        //         if ($item['is_folder'] == 'false') {
-        //             $file = $this->fileRepository->getFirstByWithTrash(['id' => $id]);
-        //             if (!empty($file) && $file->type != 'video') {
-        //                 $filePath = RvMedia::getRealPath($file->url);
-        //                 if (!RvMedia::isUsingCloud()) {
-        //                     if (File::exists($filePath)) {
-        //                         $zip->add($filePath);
-        //                     }
-        //                 } else {
-        //                     $zip->addString(
-        //                         File::basename($file),
-        //                         file_get_contents(str_replace('https://', 'http://', $filePath))
-        //                     );
-        //                 }
-        //             }
-        //         } else {
-        //             $folder = $this->folderRepository->getFirstByWithTrash(['id' => $id]);
-        //             if (!empty($folder)) {
-        //                 if (!RvMedia::isUsingCloud()) {
-        //                     $zip->add(RvMedia::getRealPath($this->folderRepository->getFullPath($folder->id)));
-        //                 } else {
-        //                     $allFiles = Storage::allFiles($this->folderRepository->getFullPath($folder->id));
-        //                     foreach ($allFiles as $file) {
-        //                         $zip->addString(
-        //                             File::basename($file),
-        //                             file_get_contents(str_replace('https://', 'http://', RvMedia::getRealPath($file)))
-        //                         );
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-
-        //     if (version_compare(phpversion(), '8.0') >= 0) {
-        //         $zip = null;
-        //     } else {
-        //         $zip->close();
-        //     }
-
-        //     if (File::exists($fileName)) {
-        //         return response()->download($fileName)->deleteFileAfterSend();
-        //     }
-
-        //     return RvMedia::responseError(trans('core/media::media.download_file_error'));
-        // }
 
         throw new Exception("Can not download file", 500);
+    }
+
+    public function getList()
+    {
     }
 }
