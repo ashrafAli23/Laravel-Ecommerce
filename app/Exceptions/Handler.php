@@ -48,13 +48,11 @@ class Handler extends ExceptionHandler
 
     public function render($request, Throwable $exception)
     {
-        // if ($request->wantsJson()) {
-        //     return $this->handleApiException($request, $exception);
-        // } else {
-        $retval = parent::render($request, $exception);
-        // }
-
-        return $retval;
+        if ($request->wantsJson()) {
+            return $this->handleApiException($request, $exception);
+        } else {
+            return  parent::render($request, $exception);
+        }
     }
 
     private function handleApiException($request, Throwable $exception)
@@ -77,10 +75,9 @@ class Handler extends ExceptionHandler
 
     private function customApiResponse($exception)
     {
-        if (method_exists($exception, 'getStatusCode')) {
-            $statusCode = $exception->getStatusCode();
-        } else {
-            $statusCode = 500;
+        $statusCode = 500;
+        if (method_exists($exception, 'getCode')) {
+            $statusCode = $exception->getCode();
         }
 
         $response = [
