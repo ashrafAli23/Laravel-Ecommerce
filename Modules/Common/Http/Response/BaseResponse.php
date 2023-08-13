@@ -82,10 +82,18 @@ class BaseResponse implements Responsable
         return $this;
     }
 
-    public function isError(): bool
+    public function setError(Throwable $th)
     {
-        return $this->success;
+        $this->setCode($th->getCode());
+        $this->setMessage($th->getMessage());
+        $this->setSuccess(false);
+        return $this;
     }
+
+    // public function isError(): bool
+    // {
+    //     return $this->success;
+    // }
 
     public function setSuccess(bool $success = false): self
     {
