@@ -79,6 +79,9 @@ class Handler extends ExceptionHandler
         if (method_exists($exception, 'getCode')) {
             $statusCode = $exception->getCode();
         }
+        if (method_exists($exception, 'getStatusCode')) {
+            $statusCode = $exception->getStatusCode();
+        }
 
         $response = [
             'success' => false
@@ -108,6 +111,7 @@ class Handler extends ExceptionHandler
                 $response['message'] = "Request entrey must be unique";
                 break;
             default:
+                $statusCode = 500;
                 $response['message'] = ($statusCode == 500) ? 'Whoops, looks like something went wrong' : $exception->getMessage();
                 break;
         }
